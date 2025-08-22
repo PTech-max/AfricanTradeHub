@@ -2,125 +2,159 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Marketplace - AfricanTradeHub</title>
+  <title>AfricanTradeHub Marketplace</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f0f4f8;
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
       margin: 0;
       padding: 0;
     }
-
     header {
-      background-color: #0a3d62;
+      background: #004080;
       color: white;
-      padding: 20px;
+      padding: 15px;
       text-align: center;
     }
-
-    .filters {
-      background-color: #fff;
-      padding: 15px 20px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
     }
-
-    .filters select {
+    select {
       padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 400px;
     }
-
-    .grid {
+    .business-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 20px;
-      padding: 20px;
     }
-
-    .card {
+    .business-card {
       background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .card h3 {
-      margin-top: 0;
-    }
-
-    .card button {
-      margin-top: 10px;
-      background-color: #0a3d62;
-      color: white;
-      border: none;
-      padding: 10px 15px;
+      border: 1px solid #ddd;
+      padding: 15px;
       border-radius: 8px;
-      cursor: pointer;
+      text-align: center;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
     }
-
-    .card button:hover {
-      background-color: #145a92;
+    .business-card img {
+      max-width: 100px;
+      margin-bottom: 10px;
+    }
+    .business-card h3 {
+      margin: 10px 0;
+      color: #004080;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Trade Marketplace</h1>
-    <p>Find African businesses to partner with</p>
+    <h1>AfricanTradeHub Marketplace</h1>
+    <p>Find businesses across Africa</p>
   </header>
 
-  <div class="filters">
-    <div>
-      <label>Filter by Country:</label>
-      <select>
-        <option value="">All Countries</option>
-        <option value="Nigeria">Nigeria</option>
-        <option value="Kenya">Kenya</option>
-        <option value="Ghana">Ghana</option>
-        <option value="South Africa">South Africa</option>
-        <option value="Egypt">Egypt</option>
-        <!-- Add more countries -->
-      </select>
-    </div>
-    <div>
-      <label>Filter by Business Type:</label>
-      <select>
-        <option value="">All Types</option>
-        <option value="Manufacturer">Manufacturer</option>
-        <option value="Wholesaler">Wholesaler</option>
-        <option value="Retailer">Retailer</option>
-        <option value="Exporter">Exporter</option>
-      </select>
+  <div class="container">
+    <label for="countrySelect"><strong>Select Country:</strong></label>
+    <select id="countrySelect" onchange="filterBusinesses()">
+      <option value="all">All African Countries</option>
+      <option value="Algeria">Algeria</option>
+      <option value="Angola">Angola</option>
+      <option value="Benin">Benin</option>
+      <option value="Botswana">Botswana</option>
+      <option value="Burkina Faso">Burkina Faso</option>
+      <option value="Burundi">Burundi</option>
+      <option value="Cabo Verde">Cabo Verde</option>
+      <option value="Cameroon">Cameroon</option>
+      <option value="Central African Republic">Central African Republic</option>
+      <option value="Chad">Chad</option>
+      <option value="Comoros">Comoros</option>
+      <option value="Congo">Congo</option>
+      <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+      <option value="Democratic Republic of the Congo">Democratic Republic of the Congo</option>
+      <option value="Djibouti">Djibouti</option>
+      <option value="Egypt">Egypt</option>
+      <option value="Equatorial Guinea">Equatorial Guinea</option>
+      <option value="Eritrea">Eritrea</option>
+      <option value="Eswatini">Eswatini</option>
+      <option value="Ethiopia">Ethiopia</option>
+      <option value="Gabon">Gabon</option>
+      <option value="Gambia">Gambia</option>
+      <option value="Ghana">Ghana</option>
+      <option value="Guinea">Guinea</option>
+      <option value="Guinea-Bissau">Guinea-Bissau</option>
+      <option value="Kenya">Kenya</option>
+      <option value="Lesotho">Lesotho</option>
+      <option value="Liberia">Liberia</option>
+      <option value="Libya">Libya</option>
+      <option value="Madagascar">Madagascar</option>
+      <option value="Malawi">Malawi</option>
+      <option value="Mali">Mali</option>
+      <option value="Mauritania">Mauritania</option>
+      <option value="Mauritius">Mauritius</option>
+      <option value="Morocco">Morocco</option>
+      <option value="Mozambique">Mozambique</option>
+      <option value="Namibia">Namibia</option>
+      <option value="Niger">Niger</option>
+      <option value="Nigeria">Nigeria</option>
+      <option value="Rwanda">Rwanda</option>
+      <option value="Sao Tome and Principe">Sao Tome and Principe</option>
+      <option value="Senegal">Senegal</option>
+      <option value="Seychelles">Seychelles</option>
+      <option value="Sierra Leone">Sierra Leone</option>
+      <option value="Somalia">Somalia</option>
+      <option value="South Africa">South Africa</option>
+      <option value="South Sudan">South Sudan</option>
+      <option value="Sudan">Sudan</option>
+      <option value="Tanzania">Tanzania</option>
+      <option value="Togo">Togo</option>
+      <option value="Tunisia">Tunisia</option>
+      <option value="Uganda">Uganda</option>
+      <option value="Zambia">Zambia</option>
+      <option value="Zimbabwe">Zimbabwe</option>
+    </select>
+
+    <div class="business-grid" id="businessGrid">
+      <!-- Example businesses -->
+      <div class="business-card" data-country="Nigeria">
+        <img src="logo1.png" alt="Business Logo">
+        <h3>Lagos Exports Ltd</h3>
+        <p>Country: Nigeria</p>
+        <p>Industry: Agriculture</p>
+      </div>
+      <div class="business-card" data-country="Kenya">
+        <img src="logo2.png" alt="Business Logo">
+        <h3>Nairobi Coffee Traders</h3>
+        <p>Country: Kenya</p>
+        <p>Industry: Coffee Exports</p>
+      </div>
+      <div class="business-card" data-country="South Africa">
+        <img src="logo3.png" alt="Business Logo">
+        <h3>Cape Town Textiles</h3>
+        <p>Country: South Africa</p>
+        <p>Industry: Manufacturing</p>
+      </div>
     </div>
   </div>
 
-  <div class="grid">
-    <div class="card">
-      <h3>Sunshine Exporters</h3>
-      <p>Type: Exporter</p>
-      <p>Country: Nigeria</p>
-      <button>Contact Business</button>
-    </div>
+  <script>
+    function filterBusinesses() {
+      const selected = document.getElementById("countrySelect").value;
+      const cards = document.querySelectorAll(".business-card");
 
-    <div class="card">
-      <h3>Kilimanjaro Wholesalers</h3>
-      <p>Type: Wholesaler</p>
-      <p>Country: Kenya</p>
-      <button>Contact Business</button>
-    </div>
-
-    <div class="card">
-      <h3>Golden Retail</h3>
-      <p>Type: Retailer</p>
-      <p>Country: Ghana</p>
-      <button>Contact Business</button>
-    </div>
-
-    <!-- Add more business cards -->
-  </div>
+      cards.forEach(card => {
+        if (selected === "all" || card.dataset.country === selected) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+  </script>
 </body>
 </html>
+
