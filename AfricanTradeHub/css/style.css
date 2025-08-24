@@ -88,7 +88,8 @@ button:hover, .btn:hover {
 .marketplace select {
   margin-bottom: 20px;
 }
-
 .marketplace .country-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit,
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
