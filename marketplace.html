@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Marketplace - AfricanTradeHub</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #0a3d62;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .filters {
+      background-color: #fff;
+      padding: 15px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .filters select {
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .card button {
+      margin-top: 10px;
+      background-color: #0a3d62;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .card button:hover {
+      background-color: #145a92;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Trade Marketplace</h1>
+    <p>Find African businesses to partner with</p>
+  </header>
+
+  <div class="filters">
+    <div>
+      <label>Filter by Country:</label>
+      <select>
+        <option value="">All Countries</option>
+        <option value="Nigeria">Nigeria</option>
+        <option value="Kenya">Kenya</option>
+        <option value="Ghana">Ghana</option>
+        <option value="South Africa">South Africa</option>
+        <option value="Egypt">Egypt</option>
+        <!-- Add more countries -->
+      </select>
+    </div>
+    <div>
+      <label>Filter by Business Type:</label>
+      <select>
+        <option value="">All Types</option>
+        <option value="Manufacturer">Manufacturer</option>
+        <option value="Wholesaler">Wholesaler</option>
+        <option value="Retailer">Retailer</option>
+        <option value="Exporter">Exporter</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Sunshine Exporters</h3>
+      <p>Type: Exporter</p>
+      <p>Country: Nigeria</p>
+      <button>Contact Business</button>
+    </div>
+
+    <div class="card">
+      <h3>Kilimanjaro Wholesalers</h3>
+      <p>Type: Wholesaler</p>
+      <p>Country: Kenya</p>
+      <button>Contact Business</button>
+    </div>
+
+    <div class="card">
+      <h3>Golden Retail</h3>
+      <p>Type: Retailer</p>
+      <p>Country: Ghana</p>
+      <button>Contact Business</button>
+    </div>
+
+    <!-- Add more business cards -->
+  </div>
+</body>
+</html>
