@@ -1,106 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - AfricanTradeHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login | AfricanTradeHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <style>
+    html,
     body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f1f4f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      height: 100%;
+      background-color: #f4f6f9;
+    }
+
+    .center-wrapper {
       height: 100vh;
     }
 
-    .login-container {
-      background-color: white;
-      padding: 40px 30px;
+    .form-container {
+      background-color: #ffffff;
+      padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    .login-container h2 {
-      margin-bottom: 25px;
-      color: #0a3d62;
+    .back-link {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+
+    .forgot-password {
+      margin-top: 10px;
       text-align: center;
     }
 
-    label {
-      display: block;
-      margin-bottom: 8px;
+    #error-message {
+      color: red;
       font-weight: 600;
-      color: #333;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #0a3d62;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #145a92;
-    }
-
-    .note {
-      margin-top: 15px;
       text-align: center;
-      font-size: 14px;
-      color: #666;
+      margin-top: 10px;
     }
   </style>
 </head>
+
 <body>
 
-  <div class="login-container">
-    <h2>Login to AfricanTradeHub</h2>
-    <form onsubmit="handleLogin(event)">
-      <label for="username">Email or Business Name</label>
-      <input type="text" id="username" required>
 
-      <label for="password">Password</label>
-      <input type="password" id="password" required>
+  <div class="container d-flex justify-content-center align-items-center center-wrapper">
+    <form onsubmit="handleLogin(event)" class="w-100 form-container" style="max-width: 400px;">
+      <h2 class="text-center mb-4">Login</h2>
 
-      <button type="submit">Login</button>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Login</button>
+
+      <div class="text-center mt-3">
+        <p>Don't have an account? <a href="register.html">Create one</a></p>
+      </div>
+
+      <div class="forgot-password">
+        <a href="resetPassword.html">Forgot Password?</a>
+      </div>
+
+      <p id="error-message"></p>
     </form>
-    <p class="note">Don’t have an account? <a href="register.html">Register here</a></p>
   </div>
 
   <script>
     function handleLogin(event) {
       event.preventDefault();
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
 
-      if (username && password) {
-        alert("Login successful!");
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorMessage = document.getElementById("error-message");
+
+      if (email && password) {
+        // For demonstration, simulate success and redirect
+        localStorage.setItem("loggedInUser", JSON.stringify({ email }));
         window.location.href = "dashboard.html";
       } else {
-        alert("Invalid login details.");
+        errorMessage.textContent = "Please fill in both fields.";
       }
     }
   </script>
-  <script src="login.js"></script>
 
+  <!-- Optional external login handler -->
+  <script src="login.js"></script>
 </body>
+
 </html>
