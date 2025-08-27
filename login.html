@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login | AfricanTradeHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    html,
+    body {
+      height: 100%;
+      background-color: #f4f6f9;
+    }
+
+    .center-wrapper {
+      height: 100vh;
+    }
+
+    .form-container {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-link {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+
+    .forgot-password {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    #error-message {
+      color: red;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <div class="container d-flex justify-content-center align-items-center center-wrapper">
+    <form onsubmit="handleLogin(event)" class="w-100 form-container" style="max-width: 400px;">
+      <h2 class="text-center mb-4">Login</h2>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Login</button>
+
+      <div class="text-center mt-3">
+        <p>Don't have an account? <a href="register.html">Create one</a></p>
+      </div>
+
+      <div class="forgot-password">
+        <a href="resetPassword.html">Forgot Password?</a>
+      </div>
+
+      <p id="error-message"></p>
+    </form>
+  </div>
+
+  <script>
+    function handleLogin(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorMessage = document.getElementById("error-message");
+
+      if (email && password) {
+        // For demonstration, simulate success and redirect
+        localStorage.setItem("loggedInUser", JSON.stringify({ email }));
+        window.location.href = "dashboard.html";
+      } else {
+        errorMessage.textContent = "Please fill in both fields.";
+      }
+    }
+  </script>
+
+  <!-- Optional external login handler -->
+  <script src="login.js"></script>
+</body>
+
+</html>
