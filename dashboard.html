@@ -5,223 +5,79 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AfricanTradeHub Dashboard</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #eef2f7;
-      color: #333;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      background-color: #0a3d62;
-      color: white;
-      padding: 20px 30px;
-      text-align: center;
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    nav {
-      background-color: #145a92;
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      padding: 15px 0;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1.1rem;
-      padding: 8px 15px;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
-      cursor: pointer;
-    }
-
-    nav a:hover {
-      background-color: #0a3d62;
-    }
-
-    main {
-      flex-grow: 1;
-      padding: 30px;
-      max-width: 1000px;
-      margin: 20px auto;
-      width: 95%;
-    }
-
-    .card {
-      background-color: white;
-      padding: 25px 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 30px;
-    }
-
-    .card h2 {
-      margin-bottom: 15px;
-      color: #145a92;
-    }
-
-    .business-info p {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-    }
-
-    .business-info strong {
-      color: #0a3d62;
-    }
-
-    .trade-opportunities a {
-      color: #145a92;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-
-    .trade-opportunities a:hover {
-      text-decoration: underline;
-    }
-
-    footer {
-      text-align: center;
-      padding: 15px 10px;
-      background-color: #0a3d62;
-      color: white;
-      font-size: 0.9rem;
-      margin-top: auto;
-    }
-
-    .error-message {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="dashboard.css" />
 </head>
 
 <body>
+  <nav class="sidebar">
+    <div class="sidebar-top-wrapper">
+      <div class="sidebar-top">
+        <a href="#" class="logo_wrapper">
+          <img src="" alt="Logo" class="logo-small" id="companyLogo" />
+          <span class="company-name" id="companyName">Loading...</span>
+        </a>
+      </div>
 
-  <header>
-    AfricanTradeHub Dashboard
-  </header>
+      <div class="search_wrapper">
+        <input type="text" placeholder="Search..." />
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </div>
+    </div>
 
-  <nav>
-    <a href="marketplace.html">Marketplace</a>
-    <a href="#">My Profile</a>
-    <a href="#">Documents</a>
-    <a href="#" id="signout">Sign Out</a>
+    <ul class="sidebar-links">
+      <li>
+        <button type="button" onclick="alert('Marketplace clicked!')">
+          <span class="icon">📊</span> <span class="link-text">Marketplace</span>
+        </button>
+      </li>
+      <li>
+        <button type="button" onclick="alert('Documents clicked!')">
+          <span class="icon">📄</span> <span class="link-text">Documents</span>
+        </button>
+      </li>
+      <li>
+        <button type="button" onclick="alert('Settings clicked!')">
+          <span class="icon">⚙️</span> <span class="link-text">Settings</span>
+        </button>
+      </li>
+      <li>
+        <button type="button" onclick="alert('Notifications clicked!')">
+          <span class="icon">🔔</span> <span class="link-text">Notifications</span>
+        </button>
+      </li>
+      <li>
+        <button id="myProfileBtn" type="button">
+          <span class="icon">👤</span> <span class="link-text">My Profile</span>
+        </button>
+      </li>
+      <li>
+        <a href="index.html" id="signout">
+          <span class="icon">🔒</span> <span class="link-text">Sign Out</span>
+        </a>
+      </li>
+    </ul>
   </nav>
 
-  <main>
-    <section class="card business-info">
-      <h2>Your Business Info</h2>
-      <p>Business Name: <strong>Loading...</strong></p>
-      <p>Type: <strong>Loading...</strong></p>
-      <p>Registered: <strong>Loading...</strong></p>
-    </section>
-
-    <section class="card trade-opportunities">
-      <h2>Trade Opportunities</h2>
-      <p><a href="#">View other African businesses to trade with →</a></p>
+  <main class="content-area" aria-live="polite">
+    <h2 class="welcome-message">Welcome to AfricanTradeHub</h2>
+    
+    <section id="profileInfo" class="profile-card" style="display:none;">
+      <h2>My Business Profile</h2>
+      <div class="profile-field"><span class="profile-label">Business Name:</span><span class="profile-value" id="profileBusinessName"></span></div>
+      <div class="profile-field"><span class="profile-label">Email:</span><span class="profile-value" id="profileEmail"></span></div>
+      <div class="profile-field"><span class="profile-label">Reg Number:</span><span class="profile-value" id="profileRegNumber"></span></div>
+      <div class="profile-field"><span class="profile-label">Business Number:</span><span class="profile-value" id="profileBusinessNumber"></span></div>
+      <div class="profile-field"><span class="profile-label">Alt. Business Number:</span><span class="profile-value" id="profileAltBusinessNumber"></span></div>
+      <div class="profile-field"><span class="profile-label">Country:</span><span class="profile-value" id="profileCountry"></span></div>
+      <div class="profile-field"><span class="profile-label">Business Type:</span><span class="profile-value" id="profileBusinessType"></span></div>
     </section>
   </main>
 
-  <footer>
-    &copy; 2025 AfricanTradeHub. All rights reserved.
-  </footer>
-
-  <script>
-    const API_BASE_URL = "http://localhost:8080";
-
-    document.addEventListener('DOMContentLoaded', () => {
-      let userStr = localStorage.getItem('loggedInUser');
-
-      // If not set, insert dummy data (for development/demo)
-      if (!userStr) {
-        console.warn('No loggedInUser found in localStorage. Setting test user.');
-        localStorage.setItem("loggedInUser", JSON.stringify({ email: user.email }));
-        window.location.href = "/dashboard.html";
-        userStr = localStorage.getItem('loggedInUser');
-      }
-
-      let user;
-      try {
-        user = JSON.parse(userStr);
-        if (!user.email) throw new Error("Invalid user data");
-      } catch (err) {
-        console.error('Error parsing loggedInUser:', err);
-        return;
-      }
-
-      loadDashboard(user.email);
-    });
-
-    async function loadDashboard(email) {
-      try {
-        const response = await fetch(`${API_BASE_URL}/userInfo`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-
-        if (!response.ok) {
-          throw new Error(`Server returned ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        const businessName = data.businessName || 'N/A';
-        const type = data.type || 'N/A';
-        const registered = typeof data.registered === 'boolean'
-          ? (data.registered ? 'Yes' : 'No') : 'N/A';
-
-        const businessInfoSection = document.querySelector('.business-info');
-        businessInfoSection.innerHTML = `
-        <h2>Your Business Info</h2>
-        <p>Business Name: <strong>${escapeHtml(businessName)}</strong></p>
-        <p>Type: <strong>${escapeHtml(type)}</strong></p>
-        <p>Registered: <strong>${registered}</strong></p>
-      `;
-      } catch (err) {
-        console.error('Error loading dashboard:', err);
-        showError("Something went wrong loading your data. Try again later.");
-      }
-    }
-
-    function escapeHtml(text) {
-      if (!text) return '';
-      return text.toString()
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function showError(message) {
-      const section = document.querySelector('.business-info');
-      section.innerHTML = `
-      <h2>Your Business Info</h2>
-      <p class="error-message">${escapeHtml(message)}</p>
-    `;
-    }
-
-    // Signout button (no localStorage clear)
-    document.addEventListener('click', function (e) {
-      if (e.target.id === 'signout') {
-        e.preventDefault();
-        window.location.href = '/login.html';
-      }
-    });
-  </script>
-
-
+  <script src="dashboard.js"></script>
 </body>
 
 </html>

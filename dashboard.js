@@ -1,66 +1,93 @@
-// dashboard.js
+document.addEventListener("DOMContentLoaded", async function () {
+  let email = localStorage.getItem("userEmail");
 
-const API_BASE_URL = "http://localhost:8084";
-
-document.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem('authToken');
-
-  if (!token) {
-    // Redirect to login if no token
-    window.location.href = "/login.html";
-    return;
+  if (!email) {
+    email = prompt("Enter your registered email:");
+    if (email) {
+      localStorage.setItem("userEmail", email);
+    } else {
+      alert("Email is required to load your business info.");
+      return;
+    }
   }
 
-  loadDashboard(token);
-  setupLogout();
-});
+  console.log("User email from localStorage:", email);
 
-async function loadDashboard(token) {
+  let userData = null;
+
   try {
-    const response = await fetch(`${API_BASE_URL}/userInfo`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(`http://localhost:8080/api/user/business-info?email=${encodeURIComponent(email)}`);
+    console.log("Response status:", response.status, response.statusText);
 
     if (!response.ok) {
-      throw new Error('Failed to fetch user info');
+      const errText = await response.text();
+      throw new Error(`Server responded with ${response.status} — ${errText}`);
     }
 
-    const data = await response.json();
+    userData = await response.json();
 
-    // Populate business info card dynamically
-    const businessInfoSection = document.querySelector('.business-info');
-    businessInfoSection.innerHTML = `
-      <h2>Your Business Info</h2>
-      <p>Business Name: <strong>${data.businessName || 'N/A'}</strong></p>
-      <p>Type: <strong>${data.type || 'N/A'}</strong></p>
-      <p>Registered: <strong>${data.registered ? 'Yes' : 'No'}</strong></p>
-    `;
+    // Update sidebar logo and company name always visible
+    document.querySelector(".logo-small")?.setAttribute("src", userData.logoUrl || "default-logo.png");
+    document.querySelector(".company-name").textContent = userData.businessName || "No Business Name";
 
   } catch (error) {
-    console.error('Error loading dashboard:', error);
-    alert('Session expired or error fetching data. Please login again.');
-    logout();
+    console.error("Error loading business info:", error);
+    alert(`Unable to load business information:\n${error.message}`);
   }
-}
 
-function setupLogout() {
-  // Target logout link by text content (since no ID in your HTML)
-  const navLinks = document.querySelectorAll('nav a');
-  navLinks.forEach(link => {
-    if (link.textContent.trim().toLowerCase() === 'logout') {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        logout();
-      });
+  // Helper function to clear displayed info
+  function clearDisplayedInfo() {
+    // Hide profile info container
+    document.getElementById("profileInfo").style.display = "none";
+
+    // Show welcome header again (if hidden)
+    const main = document.querySelector("main.content-area");
+    if (main.firstElementChild && main.firstElementChild.tagName === "H2") {
+      main.firstElementChild.style.display = "block";
+    }
+    if (main.querySelector("p")) {
+      main.querySelector("p").style.display = "block";
+    }
+  }
+
+  // Show profile info in main content when My Profile button clicked
+  document.getElementById("myProfileBtn").addEventListener("click", () => {
+    if (!userData) {
+      alert("Business information is not loaded yet.");
+      return;
+    }
+
+    clearDisplayedInfo(); // clear any existing displayed info
+
+    // Populate the profile info container
+    document.getElementById("profileBusinessName").textContent = userData.businessName || "N/A";
+    document.getElementById("profileEmail").textContent = userData.email || "N/A";
+    document.getElementById("profileRegNumber").textContent = userData.regNumber || "N/A";
+    document.getElementById("profileBusinessNumber").textContent = userData.businessNumber || "N/A";
+    document.getElementById("profileAltBusinessNumber").textContent = userData.alternativeBusinessNumber || "N/A";
+    document.getElementById("profileCountry").textContent = userData.country || "N/A";
+    document.getElementById("profileBusinessType").textContent = userData.businessType || "N/A";
+
+    // Show the profile info container and hide welcome text
+    document.getElementById("profileInfo").style.display = "block";
+
+    const main = document.querySelector("main.content-area");
+    if (main.firstElementChild.tagName === "H2") {
+      main.firstElementChild.style.display = "none";
+    }
+    if (main.querySelector("p")) {
+      main.querySelector("p").style.display = "none";
     }
   });
-}
 
-function logout() {
-  localStorage.removeItem('authToken');
-  window.location.href = '/login.html';
-}
+  // Example for other sidebar buttons to clear displayed info on click
+  // You can extend this to all buttons as needed:
+  const otherButtons = document.querySelectorAll(".sidebar-links button:not(#myProfileBtn)");
+  otherButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      clearDisplayedInfo();
+      // You can add code here to show content related to other buttons if needed
+    });
+  });
+
+});
