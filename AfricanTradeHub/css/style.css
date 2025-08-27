@@ -4,9 +4,14 @@ body {
   font-weight: 400;
   margin: 0;
   padding: 0;
-}
-
+  background: #f5f9ff;
+  color: #333;
 h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1a73e8;
+}
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
 }
@@ -17,13 +22,6 @@ h1, h2, h3, h4, h5, h6 {
   box-sizing: border-box;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
-
-body {
-  background: #f5f9ff;
-  color: #333;
-  line-height: 1.6;
-}
-
 /* Centered container */
 .form-container, .dashboard, .marketplace {
   width: 100%;
@@ -39,11 +37,8 @@ body {
 /* Headings */
 h1, h2 {
   margin-bottom: 20px;
-  color: #1a73e8;
-}
-
-/* Input fields */
-form label {
+/* Headings */
+/* Styles merged into h1-h6 selector above */
   display: block;
   text-align: left;
   margin: 10px 0 5px;
