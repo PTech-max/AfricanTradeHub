@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -68,6 +69,7 @@
     }
   </style>
 </head>
+
 <body>
   <h2>Register Your Business</h2>
   <form action="#" method="POST" enctype="multipart/form-data">
@@ -155,6 +157,8 @@
       <option value="Zambia">Zambia</option>
       <option value="Zimbabwe">Zimbabwe</option>
     </select>
+    <label>Business Website URL:</label>
+    <input type="url" name="businessUrl" placeholder="https://example.com" />
 
     <label>Upload Business Documents:</label>
     <input type="file" name="documents" multiple required />
@@ -166,4 +170,5 @@
   </form>
   <script src="register.js"></script>
 </body>
+
 </html>
