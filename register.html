@@ -166,9 +166,13 @@
     <label>Member Information (Names, Roles):</label>
     <textarea name="memberInfo" rows="4" required></textarea>
 
-    <button type="submit">Register</button>
+    <button type="submit">Register & Pay</button>
   </form>
   <script src="register.js"></script>
+  <script>
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
 </body>
 
 </html>
