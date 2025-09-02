@@ -173,6 +173,16 @@
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
+  const resp = await fetch("/api/initiate-payment", { method: "POST", body: formData });
+  const data = await resp.json();
+
+  if (data.ok && data.authorization_url) {
+    window.location.href = data.authorization_url; // Go to Paystack checkout
+  } else {
+    alert("Could not start payment: " + (data.error || "unknown error"));
+  }
+});
+</script>
 </body>
 
 </html>
