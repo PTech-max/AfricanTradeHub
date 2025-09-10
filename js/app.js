@@ -23,8 +23,52 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// ADD THIS ROUTE AFTER THE CODE ABOVE
 router.post("/initiate-payment",
+router.get("/paystack/callback", async (req, res) => {
+  const { reference } = req.query;
+  if (!reference) return res.status(400).send("No reference provided");
+
+  try {
+    // Verify with Paystack
+    const verifyResp = await axios.get(
+      `https://api.paystack.co/transaction/verify/${reference}`,
+      { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` } }
+    );
+
+    const status = verifyResp.data.data.status; // expect "success"
+    if (status !== "success") return res.status(400).send("Payment not successful");
+
+    // Get pending row
+    const [rows] = await pool.query(
+      "SELECT * FROM pending_registrations WHERE reference = ?",
+      [reference]
+    );
+    if (!rows.length) return res.status(404).send("Pending registration not found");
+
+    const p = rows[0];
+
+    // Insert into companies
+    await pool.query(
+      `INSERT INTO companies
+       (business_name, reg_number, email, country, business_type, members_info, logo_path, doc_path, subscription_plan, subscription_status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
+      [
+        p.business_name, p.reg_number, p.email, p.country, p.business_type,
+        p.members_info, p.logo_path, p.doc_path, p.subscription_plan
+      ]
+    );
+
+    // Delete pending row
+    await pool.query("DELETE FROM pending_registrations WHERE id = ?", [p.id]);
+
+    // Redirect user
+    return res.redirect(`${process.env.PUBLIC_BASE_URL}/dashboard.html`);
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    res.status(500).send("Verification error");
+  }
+});
+ 
   upload.fields([{ name: "logo", maxCount: 1 }, { name: "businessDoc", maxCount: 1 }]),
   async (req, res) => {
     try {
@@ -76,6 +120,9 @@ export default router;
 import express from "express";
 import fetch from "node-fetch"; // for API calls
 import bodyParser from "body-parser";
+// make sure this exists
+import paymentsRoutes from "./routes/payments.js";
+app.use("/api", paymentsRoutes);
 
 const app = express();
 app.use(bodyParser.json());
