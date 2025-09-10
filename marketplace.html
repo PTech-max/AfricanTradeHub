@@ -130,7 +130,7 @@
       <option value="Tunisia">Tunisia</option>
       <option value="Uganda">Uganda</option>
       <option value="Zambia">Zambia</option>
-      <option value="Zimbabwe">Zimbabwe</option>!-- Add more countries -->
+      <option value="Zimbabwe">Zimbabwe</option>
       </select>
     </div>
     <div>
@@ -142,32 +142,48 @@
         <option value="Retailer">Retailer</option>
         <option value="Exporter">Exporter</option>
       </select>
-    </div>
-  </div>
 
-  <div class="grid">
-    <div class="card">
-      <h3>Sunshine Exporters</h3>
-      <p>Type: Exporter</p>
-      <p>Country: Nigeria</p>
-      <button>Contact Business</button>
-    </div>
+      <div class="grid" id="businessGrid"></div>
 
-    <div class="card">
-      <h3>Kilimanjaro Wholesalers</h3>
-      <p>Type: Wholesaler</p>
-      <p>Country: Kenya</p>
-      <button>Contact Business</button>
-    </div>
+  <script>
+async function loadCompanies() {
+  const sel = document.getElementById("countrySelect");
+  const country = sel ? sel.value : "all";
+  const url = country && country !== "all"
+    ? `/api/companies?country=${encodeURIComponent(country)}`
+    : `/api/companies`;
 
-    <div class="card">
-      <h3>Golden Retail</h3>
-      <p>Type: Retailer</p>
-      <p>Country: Ghana</p>
-      <button>Contact Business</button>
-    </div>
+  const grid = document.getElementById("businessGrid");
+  grid.innerHTML = "Loading...";
 
-    <!-- Add more business cards -->
-  </div>
+  const resp = await fetch(url);
+  const json = await resp.json();
+
+  grid.innerHTML = "";
+  if (!json.ok || !json.data.length) {
+    grid.innerHTML = "<p>No businesses yet.</p>";
+    return;
+  }
+
+  json.data.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "business-card";
+    card.innerHTML = `
+      <img src="${c.logo_path || ''}" alt="Logo" onerror="this.style.display='none'">
+      <h3>${c.business_name}</h3>
+      <p><strong>Country:</strong> ${c.country}</p>
+      <p><strong>Type:</strong> ${c.business_type}</p>
+      <a href="mailto:${c.email}"><button>Contact</button></a>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const sel = document.getElementById("countrySelect");
+  if (sel) sel.addEventListener("change", loadCompanies);
+  loadCompanies();
+});
+</script>
 </body>
 </html>
