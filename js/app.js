@@ -1,4 +1,3 @@
-// TOP OF FILE (if not present yet)
 import { Router } from "express";
 import multer from "multer";
 import path from "path";
