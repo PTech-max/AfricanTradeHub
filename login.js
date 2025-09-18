@@ -35,7 +35,7 @@ async function handleLogin(event) {
 
     const result = await response.json();
 
-    if (result && result.success) {
+    if (response.ok && result.email && result.businessName) {
       errorMessage.textContent = "";
       alert("Login successful! Redirecting to dashboard...");
       localStorage.setItem("userEmail", email);

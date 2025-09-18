@@ -81,75 +81,123 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   async function displayMarketplaceCards() {
-    clearDisplayedInfo();
+  clearDisplayedInfo();
 
-    const main = document.querySelector("main.content-area");
-    if (!main) return;
+  const main = document.querySelector("main.content-area");
+  if (!main) return;
 
-    // Remove previous container if it exists
-    const existingContainer = document.querySelector(".marketplace-container");
-    if (existingContainer) existingContainer.remove();
+  // Remove previous container if it exists
+  const existingContainer = document.querySelector(".marketplace-container");
+  if (existingContainer) existingContainer.remove();
 
-    const container = document.createElement("div");
-    container.className = "marketplace-container";
-    container.style.display = "flex";
-    container.style.flexDirection = "column";
-    container.style.gap = "30px";
-    container.style.padding = "20px";
-    main.appendChild(container);
+  // Remove existing search bar if it exists
+  const existingSearch = document.querySelector(".marketplace-search");
+  if (existingSearch) existingSearch.remove();
 
-    try {
-      const response = await fetch('http://localhost:8080/api/marketplace');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch marketplace data: ${response.status}`);
-      }
+  // Create search bar
+  const searchWrapper = document.createElement("div");
+  searchWrapper.className = "marketplace-search";
+  searchWrapper.style.display = "flex";
+  searchWrapper.style.gap = "10px";
+  searchWrapper.style.margin = "20px";
+  searchWrapper.style.alignItems = "center";
 
-      const businesses = await response.json();
+  const input = document.createElement("input");
+  input.type = "text";
+  input.id = "searchInput";
+  input.placeholder = "Search by type or country...";
+  input.style.padding = "8px";
+  input.style.fontSize = "16px";
+  input.style.flex = "1";
 
-      if (!businesses.length) {
-        container.innerHTML = "<p>No businesses found.</p>";
-        return;
-      }
+  const button = document.createElement("button");
+  button.textContent = "Search";
+  button.style.padding = "8px 12px";
+  button.style.fontSize = "16px";
 
-      // First 5 cards in horizontal layout
-      const firstFive = businesses.slice(0, 5);
-      const remaining = businesses.slice(5);
+  button.onclick = () => displayMarketplaceCards(); // recall same function with filter
 
-      const topRow = document.createElement("div");
-      topRow.style.display = "flex";
-      topRow.style.flexWrap = "wrap";
-      topRow.style.justifyContent = "space-between";
-      topRow.style.gap = "20px";
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      displayMarketplaceCards(); // also trigger on Enter key
+    }
+  });
 
-      firstFive.forEach(business => {
+  searchWrapper.appendChild(input);
+  searchWrapper.appendChild(button);
+  main.appendChild(searchWrapper);
+
+  // Get search term
+  const searchTerm = input.value.trim().toLowerCase();
+
+  // Create container for cards
+  const container = document.createElement("div");
+  container.className = "marketplace-container";
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
+  container.style.gap = "30px";
+  container.style.padding = "20px";
+  main.appendChild(container);
+
+  try {
+    const response = await fetch('http://localhost:8080/api/marketplace');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch marketplace data: ${response.status}`);
+    }
+
+    const businesses = await response.json();
+
+    // Filter if search term exists
+    const filteredBusinesses = businesses.filter(business => {
+      const typeMatch = business.businessType?.toLowerCase().includes(searchTerm);
+      const countryMatch = business.country?.toLowerCase().includes(searchTerm);
+      return typeMatch || countryMatch;
+    });
+
+    if (!filteredBusinesses.length) {
+      container.innerHTML = `<p>No businesses found for "${searchTerm}".</p>`;
+      return;
+    }
+
+    // First 5 cards
+    const firstFive = filteredBusinesses.slice(0, 5);
+    const remaining = filteredBusinesses.slice(5);
+
+    const topRow = document.createElement("div");
+    topRow.style.display = "flex";
+    topRow.style.flexWrap = "wrap";
+    topRow.style.justifyContent = "space-between";
+    topRow.style.gap = "20px";
+
+    firstFive.forEach(business => {
+      const card = createBusinessCard(business);
+      card.style.flex = "1 1 calc(20% - 20px)";
+      card.style.minWidth = "200px";
+      topRow.appendChild(card);
+    });
+
+    container.appendChild(topRow);
+
+    if (remaining.length) {
+      const verticalWrapper = document.createElement("div");
+      verticalWrapper.style.display = "flex";
+      verticalWrapper.style.flexDirection = "column";
+      verticalWrapper.style.gap = "20px";
+
+      remaining.forEach(business => {
         const card = createBusinessCard(business);
-        card.style.flex = "1 1 calc(20% - 20px)";
-        card.style.minWidth = "200px";
-        topRow.appendChild(card);
+        verticalWrapper.appendChild(card);
       });
 
-      container.appendChild(topRow);
-
-      // Remaining cards vertically
-      if (remaining.length) {
-        const verticalWrapper = document.createElement("div");
-        verticalWrapper.style.display = "flex";
-        verticalWrapper.style.flexDirection = "column";
-        verticalWrapper.style.gap = "20px";
-
-        remaining.forEach(business => {
-          const card = createBusinessCard(business);
-          verticalWrapper.appendChild(card);
-        });
-
-        container.appendChild(verticalWrapper);
-      }
-
-    } catch (error) {
-      container.innerHTML = `<p style="color: red;">Error loading businesses: ${error.message}</p>`;
-      console.error(error);
+      container.appendChild(verticalWrapper);
     }
+
+  } catch (error) {
+    container.innerHTML = `<p style="color: red;">Error loading businesses: ${error.message}</p>`;
+    console.error(error);
   }
+}
+
 
   function createBusinessCard(business) {
     const card = document.createElement("div");
