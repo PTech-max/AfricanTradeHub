@@ -122,107 +122,105 @@
       </ul>
     </section>
 
-    <!-- Payment Section -->
     <section id="paymentMethodsSection" style="display:none; margin-top:30px;">
-      <div class="payment-container">
-        <!-- Left side: Billing cycle -->
-        <div class="billing-section">
-          <h2>Choose a billing cycle</h2>
+  <div class="payment-container">
+    <!-- Left side: Billing cycle -->
+    <div class="billing-section">
+      <h2>Choose a billing cycle</h2>
 
-          <form id="paymentForm">
-            <label class="billing-option active">
-              <input type="radio" name="billingCycle" value="49.95" checked />
-              <div class="billing-info">
-                <div class="billing-title">Pay annually</div>
-                <div class="billing-sub">$4.17 USD / month</div>
-                <span class="badge best">Save 58%</span>
-              </div>
-            </label>
+      <form id="paymentForm" novalidate>
+        <label class="billing-option active">
+          <input type="radio" name="billingCycle" value="49.95" checked />
+          <div class="billing-info">
+            <div class="billing-title">Pay annually</div>
+            <div class="billing-sub">$4.17 USD / month</div>
+            <span class="badge best">Save 58%</span>
+          </div>
+        </label>
 
-            <label class="billing-option">
-              <input type="radio" name="billingCycle" value="19.95" />
-              <div class="billing-info">
-                <div class="billing-title">Pay quarterly</div>
-                <div class="billing-sub">$6.65 USD / month</div>
-                <span class="badge">Save 33%</span>
-              </div>
-            </label>
+        <label class="billing-option">
+          <input type="radio" name="billingCycle" value="19.95" />
+          <div class="billing-info">
+            <div class="billing-title">Pay quarterly</div>
+            <div class="billing-sub">$6.65 USD / month</div>
+            <span class="badge">Save 33%</span>
+          </div>
+        </label>
 
-            <label class="billing-option">
-              <input type="radio" name="billingCycle" value="9.95" />
-              <div class="billing-info">
-                <div class="billing-title">Pay monthly</div>
-                <div class="billing-sub">$9.95 USD / month</div>
-              </div>
-            </label>
+        <label class="billing-option">
+          <input type="radio" name="billingCycle" value="9.95" />
+          <div class="billing-info">
+            <div class="billing-title">Pay monthly</div>
+            <div class="billing-sub">$9.95 USD / month</div>
+          </div>
+        </label>
 
-            <div class="total">
-              <strong>Total</strong>
-              <span id="paymentTotal">$49.95 USD / year</span>
-            </div>
-
-            <div class="discount">
-              <a href="#" id="discountToggle">Use discount code</a>
-              <input type="text" id="discountInput" placeholder="Enter code" style="display:none;" />
-            </div>
-
-            <ul class="guarantee">
-              <li>✔ 100% money-back guarantee</li>
-              <li>Ⅱ Pause or cancel anytime</li>
-            </ul>
-          </form>
+        <div class="total">
+          <strong>Total</strong>
+          <span id="paymentTotal">$49.95 USD / year</span>
         </div>
 
-        <!-- Right side: Payment details -->
-        <div class="details-section">
-          <h2>Payment details</h2>
-
-          <div class="tabs">
-            <button type="button" class="tab active" data-target="cardForm">Credit/debit card</button>
-            <button type="button" class="tab" data-target="paypalForm">PayPal</button>
-          </div>
-
-          <!-- Card form -->
-          <form id="cardForm" class="payment-form">
-            <input type="text" placeholder="Card number" />
-            <div class="card-row">
-              <input type="text" placeholder="MM/YY" />
-              <input type="text" placeholder="CVV" />
-              <input type="text" placeholder="Postal code" />
-            </div>
-            <button type="submit" class="pay-button">Pay with card</button>
-          </form>
-
-          <!-- PayPal form -->
-          <div id="paypalForm" class="payment-form" style="display:none; text-align:center;">
-            <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-mark-color.svg" alt="PayPal Logo"
-              style="height:40px; margin-bottom:15px;">
-            <button type="button" class="paypal-button">Continue with PayPal</button>
-          </div>
-
-          <!-- Message area -->
-          <p id="paymentMessage" style="margin-top:15px; font-weight:bold;"></p>
-
-          <p class="renewal-text">
-            Your subscription will automatically renew every 12 months. You will be charged
-            <strong>$49.95 USD</strong> on each renewal until you cancel your subscription. If you cancel, previous
-            charges will not be refunded (unless required by law), but you may continue to use the
-            service until the end of the term you paid for.
-          </p>
-
-          <p class="terms">
-            By clicking the "Pay with card" button above, you agree to our
-            <a href="#">Terms of Service</a> and have read our
-            <a href="#">Privacy Policy</a>.
-          </p>
+        <div class="discount">
+          <a href="#" id="discountToggle">Use discount code</a>
+          <input type="text" id="discountInput" placeholder="Enter code" style="display:none;" autocomplete="off" />
         </div>
+
+        <ul class="guarantee">
+          <li>✔ 100% money-back guarantee</li>
+          <li>Ⅱ Pause or cancel anytime</li>
+        </ul>
+      </form>
+    </div>
+
+    <!-- Right side: Payment details -->
+    <div class="details-section">
+      <h2>Payment details</h2>
+
+      <!-- Removed tabs and card form -->
+
+      <!-- PayPal form only -->
+      <div id="paypalForm" class="payment-form" style="text-align:center;">
+        <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-mark-color.svg" alt="PayPal Logo"
+          style="height:40px; margin-bottom:15px;">
+        <button type="button" class="paypal-button">Continue with PayPal</button>
       </div>
-    </section>
+
+      <!-- Message area -->
+      <p id="paymentMessage" style="margin-top:15px; font-weight:bold;"></p>
+
+      <p class="renewal-text">
+        Your subscription will automatically renew every 12 months. You will be charged
+        <strong>$49.95 USD</strong> on each renewal until you cancel your subscription. If you cancel, previous
+        charges will not be refunded (unless required by law), but you may continue to use the
+        service until the end of the term you paid for.
+      </p>
+
+      <p class="terms">
+        By clicking the "Continue with PayPal" button above, you agree to our
+        <a href="#">Terms of Service</a> and have read our
+        <a href="#">Privacy Policy</a>.
+      </p>
+    </div>
+  </div>
+</section>
+
   </main>
 
   <script src="dashboard.js"></script>
   <script src="documents.js"></script>
   <script src="payment.js"></script>
+
+  <style>
+    /* Visually hidden class for accessibility */
+    .visually-hidden {
+      position: absolute !important;
+      height: 1px;
+      width: 1px;
+      overflow: hidden;
+      clip: rect(1px, 1px, 1px, 1px);
+      white-space: nowrap; /* prevent wrapping */
+    }
+  </style>
 </body>
 
 </html>

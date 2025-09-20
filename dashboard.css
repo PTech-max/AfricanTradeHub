@@ -474,3 +474,28 @@ h2 {
   text-align: center;
   color: #333;
 }
+.pay-button {
+  background-color: #007bff;      /* Bright blue */
+  color: white;                   /* White text */
+  font-weight: 600;               /* Semi-bold */
+  font-size: 1rem;                /* Medium size */
+  padding: 12px 24px;             /* Comfortable padding */
+  border: none;                  /* No border */
+  border-radius: 6px;             /* Rounded corners */
+  cursor: pointer;                /* Pointer on hover */
+  transition: background-color 0.3s ease, box-shadow 0.2s ease;
+  width: 100%;                   /* Full width inside form */
+  box-shadow: 0 4px 6px rgba(0, 123, 255, 0.3); /* subtle shadow */
+}
+
+.pay-button:hover,
+.pay-button:focus {
+  background-color: #0056b3;     /* Darker blue on hover/focus */
+  outline: none;
+  box-shadow: 0 6px 10px rgba(0, 86, 179, 0.5);
+}
+
+.pay-button:active {
+  background-color: #004085;     /* Even darker when clicked */
+  box-shadow: none;
+}
