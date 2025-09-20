@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sections = [
       "profileInfo",
       "uploadDocumentsSection",
-      "viewDocumentsSection",
+      //"viewDocumentsSection",
       "paymentMethodsSection"
     ];
 
@@ -136,27 +136,49 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Card payment error:", error);
     }
   });
+// PayPal button click
+const paypalBtn = paypalForm?.querySelector("button");
+paypalBtn?.addEventListener("click", async () => {
+  if (!paymentMessage) return;
 
-  // PayPal button click
-  const paypalBtn = paypalForm?.querySelector("button");
-  paypalBtn?.addEventListener("click", () => {
-    if (!paymentMessage) return;
+  const selectedRadio = document.querySelector("input[name='billingCycle']:checked");
+  const amount = parseFloat(selectedRadio?.value);
 
-    const selectedRadio = document.querySelector("input[name='billingCycle']:checked");
-    const amount = parseFloat(selectedRadio?.value);
+  if (isNaN(amount) || amount <= 0) {
+    paymentMessage.style.color = "red";
+    paymentMessage.textContent = "Please select a valid billing option.";
+    return;
+  }
 
-    if (isNaN(amount) || amount <= 0) {
-      paymentMessage.style.color = "red";
-      paymentMessage.textContent = "Please select a valid billing option.";
-      return;
+  // Disable button while processing
+  paypalBtn.disabled = true;
+  paymentMessage.style.color = "green";
+  paymentMessage.textContent = "Redirecting to PayPal...";
+
+  try {
+    // Call backend to create PayPal payment
+    const response = await fetch(`http://localhost:8080/api/paypal/create-payment?amount=${encodeURIComponent(amount)}`, {
+      method: "POST"
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to initiate PayPal payment.");
     }
 
-    paymentMessage.style.color = "green";
-    paymentMessage.textContent = "Redirecting to PayPal...";
-    console.log("Redirecting to PayPal with amount:", amount);
+    const approvalUrl = await response.text(); // backend returns PayPal approval link as plain text
 
-    // Production: window.location.href = "https://www.paypal.com/checkout?amount=" + amount;
-  });
+    // Redirect user to PayPal approval page
+    window.location.href = approvalUrl;
+
+  } catch (error) {
+    paymentMessage.style.color = "red";
+    paymentMessage.textContent = `Error: ${error.message}`;
+    console.error("PayPal payment error:", error);
+    paypalBtn.disabled = false; // Re-enable button on error
+  }
+});
+
 
   // Initially hide all payment forms
   clearDisplayedInfo();
