@@ -35,6 +35,9 @@
 
     input[type="text"],
     input[type="file"],
+    input[type="url"],
+    input[type="email"],
+    input[type="password"],
     select,
     textarea {
       width: 100%;
@@ -157,32 +160,22 @@
       <option value="Zambia">Zambia</option>
       <option value="Zimbabwe">Zimbabwe</option>
     </select>
+
     <label>Business Website URL:</label>
     <input type="url" name="businessUrl" placeholder="https://example.com" />
 
-    <label>Upload Business Documents:</label>
-    <input type="file" name="documents" multiple required />
+    <label>Email:</label>
+    <input type="email" name="email" required />
+
+    <label>Password:</label>
+    <input type="password" name="password" required />
 
     <label>Member Information (Names, Roles):</label>
     <textarea name="memberInfo" rows="4" required></textarea>
 
-    <button type="submit">Register & Pay</button>
+    <button type="submit">Register</button>
   </form>
-  <script src="register.js"></script>
-  <script>
-document.getElementById("registerForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const resp = await fetch("/api/initiate-payment", { method: "POST", body: formData });
-  const data = await resp.json();
 
-  if (data.ok && data.authorization_url) {
-    window.location.href = data.authorization_url; // Go to Paystack checkout
-  } else {
-    alert("Could not start payment: " + (data.error || "unknown error"));
-  }
-});
-</script>
 </body>
 
 </html>

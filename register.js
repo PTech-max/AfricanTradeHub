@@ -6,25 +6,27 @@ document.querySelector('form').addEventListener('submit', async function (e) {
     const form = e.target;
 
     // Step 1: Get and validate email
-    let email = form.email?.value.trim();
+    let email = form.email.value.trim();
     if (!email) {
-        email = prompt("Please enter your email:");
+        alert("Email is required.");
+        return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
+    if (!emailRegex.test(email)) {
         alert("Please enter a valid email address.");
         return;
     }
 
     // Step 2: Get and validate password
-    let password = form.password?.value.trim();
+    let password = form.password.value.trim();
     if (!password) {
-        password = prompt("Please enter your password:");
+        alert("Password is required.");
+        return;
     }
 
-    if (!password || password.length < 4) {
-        alert("Password is required and must be at least 4 characters.");
+    if (password.length < 4) {
+        alert("Password must be at least 4 characters.");
         return;
     }
 

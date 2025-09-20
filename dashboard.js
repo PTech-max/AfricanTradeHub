@@ -14,9 +14,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log("User email from localStorage:", email);
 
   let userData = null;
+  const BASE_URL = "http://localhost:8080"; // Adjust your API base URL here
 
   try {
-    const response = await fetch(`http://localhost:8080/api/user/business-info?email=${encodeURIComponent(email)}`);
+    const response = await fetch(`${BASE_URL}/api/user/business-info?email=${encodeURIComponent(email)}`);
     if (!response.ok) {
       const errText = await response.text();
       throw new Error(`Server responded with ${response.status}: ${errText}`);
@@ -43,6 +44,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     const profileInfo = document.getElementById("profileInfo");
     if (profileInfo) profileInfo.style.display = "none";
 
+    const uploadSection = document.getElementById("uploadDocumentsSection");
+    if (uploadSection) uploadSection.style.display = "none";
+
+    const viewSection = document.getElementById("viewDocumentsSection");
+    if (viewSection) viewSection.style.display = "none";
+
     const main = document.querySelector("main.content-area");
     if (!main) return;
 
@@ -51,8 +58,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const marketplaceContainer = main.querySelector(".marketplace-container");
     if (marketplaceContainer) marketplaceContainer.remove();
+
+    // Remove search bar if exists
+    const existingSearch = main.querySelector(".marketplace-search");
+    if (existingSearch) existingSearch.remove();
   }
 
+  // Profile Button
   document.getElementById("myProfileBtn")?.addEventListener("click", () => {
     if (!userData) {
       alert("Business information is not loaded yet.");
@@ -80,124 +92,204 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (welcomeH2) welcomeH2.style.display = "none";
   });
 
-  async function displayMarketplaceCards() {
-  clearDisplayedInfo();
-
-  const main = document.querySelector("main.content-area");
-  if (!main) return;
-
-  // Remove previous container if it exists
-  const existingContainer = document.querySelector(".marketplace-container");
-  if (existingContainer) existingContainer.remove();
-
-  // Remove existing search bar if it exists
-  const existingSearch = document.querySelector(".marketplace-search");
-  if (existingSearch) existingSearch.remove();
-
-  // Create search bar
-  const searchWrapper = document.createElement("div");
-  searchWrapper.className = "marketplace-search";
-  searchWrapper.style.display = "flex";
-  searchWrapper.style.gap = "10px";
-  searchWrapper.style.margin = "20px";
-  searchWrapper.style.alignItems = "center";
-
-  const input = document.createElement("input");
-  input.type = "text";
-  input.id = "searchInput";
-  input.placeholder = "Search by type or country...";
-  input.style.padding = "8px";
-  input.style.fontSize = "16px";
-  input.style.flex = "1";
-
-  const button = document.createElement("button");
-  button.textContent = "Search";
-  button.style.padding = "8px 12px";
-  button.style.fontSize = "16px";
-
-  button.onclick = () => displayMarketplaceCards(); // recall same function with filter
-
-  input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      displayMarketplaceCards(); // also trigger on Enter key
-    }
+  // Marketplace Button
+  document.getElementById("marketplaceBtn")?.addEventListener("click", () => {
+    displayMarketplaceCards();
   });
 
-  searchWrapper.appendChild(input);
-  searchWrapper.appendChild(button);
-  main.appendChild(searchWrapper);
+  // Upload Documents Button
+  const uploadBtn = document.getElementById("uploadDocsBtn");
+  const uploadSection = document.getElementById("uploadDocumentsSection");
+  const uploadForm = document.getElementById("uploadDocsForm");
+  const uploadInput = document.getElementById("docUploadInput");
+  const uploadStatus = document.getElementById("uploadStatus");
 
-  // Get search term
-  const searchTerm = input.value.trim().toLowerCase();
+  uploadBtn?.addEventListener("click", () => {
+    clearDisplayedInfo();
+    uploadSection.style.display = "block";
+  });
 
-  // Create container for cards
-  const container = document.createElement("div");
-  container.className = "marketplace-container";
-  container.style.display = "flex";
-  container.style.flexDirection = "column";
-  container.style.gap = "30px";
-  container.style.padding = "20px";
-  main.appendChild(container);
+  // Removed View Documents Button event listener entirely (handled in separate JS)
 
-  try {
-    const response = await fetch('http://localhost:8080/api/marketplace');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch marketplace data: ${response.status}`);
-    }
+  document.getElementById('uploadDocsForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-    const businesses = await response.json();
-
-    // Filter if search term exists
-    const filteredBusinesses = businesses.filter(business => {
-      const typeMatch = business.businessType?.toLowerCase().includes(searchTerm);
-      const countryMatch = business.country?.toLowerCase().includes(searchTerm);
-      return typeMatch || countryMatch;
-    });
-
-    if (!filteredBusinesses.length) {
-      container.innerHTML = `<p>No businesses found for "${searchTerm}".</p>`;
+    const email = localStorage.getItem("userEmail");
+    if (!email) {
+      alert("User not logged in.");
       return;
     }
 
-    // First 5 cards
-    const firstFive = filteredBusinesses.slice(0, 5);
-    const remaining = filteredBusinesses.slice(5);
+    const logoFile = document.getElementById("logoUploadInput").files[0];
+    const generalFiles = document.getElementById("docUploadInput").files;
 
-    const topRow = document.createElement("div");
-    topRow.style.display = "flex";
-    topRow.style.flexWrap = "wrap";
-    topRow.style.justifyContent = "space-between";
-    topRow.style.gap = "20px";
+    const status = document.getElementById("uploadStatus");
+    status.innerHTML = "";
 
-    firstFive.forEach(business => {
-      const card = createBusinessCard(business);
-      card.style.flex = "1 1 calc(20% - 20px)";
-      card.style.minWidth = "200px";
-      topRow.appendChild(card);
+    try {
+      // Upload logo
+      if (logoFile) {
+        const logoForm = new FormData();
+        logoForm.append('file', logoFile);
+        logoForm.append('email', email);
+        logoForm.append('isBusinessLogo', 'true');
+
+        const logoRes = await fetch(`${BASE_URL}/upload`, {
+          method: 'POST',
+          body: logoForm,
+        });
+
+        if (!logoRes.ok) throw new Error('Logo upload failed.');
+        const logoData = await logoRes.json();
+        status.innerHTML += `<p>✅ Logo uploaded. ID: ${logoData.id}</p>`;
+      }
+
+      // Upload general documents
+      if (generalFiles.length > 0) {
+        for (const doc of generalFiles) {
+          const docForm = new FormData();
+          docForm.append('file', doc);
+          docForm.append('email', email);
+          docForm.append('isBusinessLogo', 'false');
+
+          const docRes = await fetch(`${BASE_URL}/upload`, {
+            method: 'POST',
+            body: docForm,
+          });
+
+          if (!docRes.ok) throw new Error(`Document upload failed: ${doc.name}`);
+          const docData = await docRes.json();
+          status.innerHTML += `<p>📄 Document "${doc.name}" uploaded. ID: ${docData.id}</p>`;
+        }
+      }
+
+      alert("All uploads completed successfully.");
+      document.getElementById("uploadDocsForm").reset();
+
+    } catch (err) {
+      console.error(err);
+      status.innerHTML += `<p style="color:red;">Error: ${err.message}</p>`;
+    }
+  });
+
+  // Marketplace cards and other existing functions (keep unchanged)
+  async function displayMarketplaceCards() {
+    clearDisplayedInfo();
+
+    const main = document.querySelector("main.content-area");
+    if (!main) return;
+
+    // Remove previous container if it exists
+    const existingContainer = document.querySelector(".marketplace-container");
+    if (existingContainer) existingContainer.remove();
+
+    // Remove existing search bar if it exists
+    const existingSearch = document.querySelector(".marketplace-search");
+    if (existingSearch) existingSearch.remove();
+
+    // Create search bar
+    const searchWrapper = document.createElement("div");
+    searchWrapper.className = "marketplace-search";
+    searchWrapper.style.display = "flex";
+    searchWrapper.style.gap = "10px";
+    searchWrapper.style.margin = "20px";
+    searchWrapper.style.alignItems = "center";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = "searchInput";
+    input.placeholder = "Search by type or country...";
+    input.style.padding = "8px";
+    input.style.fontSize = "16px";
+    input.style.flex = "1";
+
+    const button = document.createElement("button");
+    button.textContent = "Search";
+    button.style.padding = "8px 12px";
+    button.style.fontSize = "16px";
+
+    button.onclick = () => displayMarketplaceCards(); // recall same function with filter
+
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        displayMarketplaceCards(); // also trigger on Enter key
+      }
     });
 
-    container.appendChild(topRow);
+    searchWrapper.appendChild(input);
+    searchWrapper.appendChild(button);
+    main.appendChild(searchWrapper);
 
-    if (remaining.length) {
-      const verticalWrapper = document.createElement("div");
-      verticalWrapper.style.display = "flex";
-      verticalWrapper.style.flexDirection = "column";
-      verticalWrapper.style.gap = "20px";
+    // Get search term
+    const searchTerm = input.value.trim().toLowerCase();
 
-      remaining.forEach(business => {
-        const card = createBusinessCard(business);
-        verticalWrapper.appendChild(card);
+    // Create container for cards
+    const container = document.createElement("div");
+    container.className = "marketplace-container";
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.style.gap = "30px";
+    container.style.padding = "20px";
+    main.appendChild(container);
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/marketplace`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch marketplace data: ${response.status}`);
+      }
+
+      const businesses = await response.json();
+
+      // Filter if search term exists
+      const filteredBusinesses = businesses.filter(business => {
+        const typeMatch = business.businessType?.toLowerCase().includes(searchTerm);
+        const countryMatch = business.country?.toLowerCase().includes(searchTerm);
+        return typeMatch || countryMatch;
       });
 
-      container.appendChild(verticalWrapper);
+      if (!filteredBusinesses.length) {
+        container.innerHTML = `<p>No businesses found for "${searchTerm}".</p>`;
+        return;
+      }
+
+      // First 5 cards
+      const firstFive = filteredBusinesses.slice(0, 5);
+      const remaining = filteredBusinesses.slice(5);
+
+      const topRow = document.createElement("div");
+      topRow.style.display = "flex";
+      topRow.style.flexWrap = "wrap";
+      topRow.style.justifyContent = "space-between";
+      topRow.style.gap = "20px";
+
+      firstFive.forEach(business => {
+        const card = createBusinessCard(business);
+        card.style.flex = "1 1 calc(20% - 20px)";
+        card.style.minWidth = "200px";
+        topRow.appendChild(card);
+      });
+
+      container.appendChild(topRow);
+
+      if (remaining.length) {
+        const verticalWrapper = document.createElement("div");
+        verticalWrapper.style.display = "flex";
+        verticalWrapper.style.flexDirection = "column";
+        verticalWrapper.style.gap = "20px";
+
+        remaining.forEach(business => {
+          const card = createBusinessCard(business);
+          verticalWrapper.appendChild(card);
+        });
+
+        container.appendChild(verticalWrapper);
+      }
+
+    } catch (error) {
+      container.innerHTML = `<p style="color: red;">Error loading businesses: ${error.message}</p>`;
+      console.error(error);
     }
-
-  } catch (error) {
-    container.innerHTML = `<p style="color: red;">Error loading businesses: ${error.message}</p>`;
-    console.error(error);
   }
-}
-
 
   function createBusinessCard(business) {
     const card = document.createElement("div");
@@ -227,11 +319,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     return card;
   }
 
-  document.getElementById("marketplaceBtn")?.addEventListener("click", () => {
-    displayMarketplaceCards();
-  });
-
-  const otherButtons = document.querySelectorAll(".sidebar-links button:not(#myProfileBtn):not(#marketplaceBtn)");
+  // Other sidebar buttons clear content
+  const otherButtons = document.querySelectorAll(".sidebar-links button:not(#myProfileBtn):not(#marketplaceBtn):not(#uploadDocsBtn):not(#viewDocsBtn)");
   otherButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       clearDisplayedInfo();

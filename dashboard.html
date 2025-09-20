@@ -17,40 +17,55 @@
           <span class="company-name" id="companyName">Loading...</span>
         </a>
       </div>
-      <!-- Search bar removed here -->
     </div>
 
     <ul class="sidebar-links">
       <li>
-       
-
-        <button type="button" id="marketplaceBtn" onclick="alert('Marketplace clicked!')">
-          <span class="icon">📊</span> <span class="link-text">Marketplace</span>
+        <button type="button" id="marketplaceBtn">
+          <span class="icon">📊</span>
+          <span class="link-text">Marketplace</span>
         </button>
       </li>
       <li>
-        <button type="button" onclick="alert('Documents clicked!')">
-          <span class="icon">📄</span> <span class="link-text">Documents</span>
+        <button type="button" id="uploadDocsBtn">
+          <span class="icon">⬆️</span>
+          <span class="link-text">Upload Documents</span>
         </button>
       </li>
       <li>
-        <button type="button" onclick="alert('Settings clicked!')">
-          <span class="icon">⚙️</span> <span class="link-text">Settings</span>
+        <button type="button" id="viewDocsBtn">
+          <span class="icon">📄</span>
+          <span class="link-text">View Documents</span>
         </button>
       </li>
       <li>
-        <button type="button" onclick="alert('Notifications clicked!')">
-          <span class="icon">🔔</span> <span class="link-text">Notifications</span>
+        <button type="button" id="paymentMethodBtn">
+          <span class="icon">💳</span>
+          <span class="link-text">Payment Methods</span>
+        </button>
+      </li>
+      <li>
+        <button type="button">
+          <span class="icon">⚙️</span>
+          <span class="link-text">Settings</span>
+        </button>
+      </li>
+      <li>
+        <button type="button">
+          <span class="icon">🔔</span>
+          <span class="link-text">Notifications</span>
         </button>
       </li>
       <li>
         <button id="myProfileBtn" type="button">
-          <span class="icon">👤</span> <span class="link-text">My Profile</span>
+          <span class="icon">👤</span>
+          <span class="link-text">My Profile</span>
         </button>
       </li>
       <li>
         <a href="index.html" id="signout">
-          <span class="icon">🔒</span> <span class="link-text">Sign Out</span>
+          <span class="icon">🔒</span>
+          <span class="link-text">Sign Out</span>
         </a>
       </li>
     </ul>
@@ -59,6 +74,7 @@
   <main class="content-area" aria-live="polite">
     <h2 class="welcome-message">Welcome to AfricanTradeHub</h2>
 
+    <!-- Profile Section -->
     <section id="profileInfo" class="profile-card" style="display:none;">
       <h2>My Business Profile</h2>
       <div class="profile-field"><span class="profile-label">Business Name:</span><span class="profile-value"
@@ -78,9 +94,135 @@
       <div class="profile-field"><span class="profile-label">Business Website:</span><span class="profile-value"
           id="profileBusinessUrl"></span></div>
     </section>
+
+    <!-- Upload Documents Section -->
+    <section id="uploadDocumentsSection" style="display:none; margin-top: 30px;">
+      <h2>Upload Your Documents</h2>
+
+      <form id="uploadDocsForm">
+        <!-- Business Logo Upload -->
+        <label for="logoUploadInput"><strong>Upload Business Logo</strong></label>
+        <input type="file" id="logoUploadInput" accept="image/*" /><br /><br />
+
+        <!-- General Documents Upload -->
+        <label for="docUploadInput"><strong>Upload General Documents</strong></label>
+        <input type="file" id="docUploadInput" multiple /><br /><br />
+
+        <button type="submit">Upload</button>
+      </form>
+
+      <div id="uploadStatus"></div>
+    </section>
+
+    <!-- View Documents Section -->
+    <section id="viewDocumentsSection" style="display:none; margin-top:30px;">
+      <h2>Your Uploaded Documents</h2>
+      <ul id="documentsList">
+        <!-- Document items will be added here via JS -->
+      </ul>
+    </section>
+
+    <!-- Payment Section -->
+    <section id="paymentMethodsSection" style="display:none; margin-top:30px;">
+      <div class="payment-container">
+        <!-- Left side: Billing cycle -->
+        <div class="billing-section">
+          <h2>Choose a billing cycle</h2>
+
+          <form id="paymentForm">
+            <label class="billing-option active">
+              <input type="radio" name="billingCycle" value="49.95" checked />
+              <div class="billing-info">
+                <div class="billing-title">Pay annually</div>
+                <div class="billing-sub">$4.17 USD / month</div>
+                <span class="badge best">Save 58%</span>
+              </div>
+            </label>
+
+            <label class="billing-option">
+              <input type="radio" name="billingCycle" value="19.95" />
+              <div class="billing-info">
+                <div class="billing-title">Pay quarterly</div>
+                <div class="billing-sub">$6.65 USD / month</div>
+                <span class="badge">Save 33%</span>
+              </div>
+            </label>
+
+            <label class="billing-option">
+              <input type="radio" name="billingCycle" value="9.95" />
+              <div class="billing-info">
+                <div class="billing-title">Pay monthly</div>
+                <div class="billing-sub">$9.95 USD / month</div>
+              </div>
+            </label>
+
+            <div class="total">
+              <strong>Total</strong>
+              <span id="paymentTotal">$49.95 USD / year</span>
+            </div>
+
+            <div class="discount">
+              <a href="#" id="discountToggle">Use discount code</a>
+              <input type="text" id="discountInput" placeholder="Enter code" style="display:none;" />
+            </div>
+
+            <ul class="guarantee">
+              <li>✔ 100% money-back guarantee</li>
+              <li>Ⅱ Pause or cancel anytime</li>
+            </ul>
+          </form>
+        </div>
+
+        <!-- Right side: Payment details -->
+        <div class="details-section">
+          <h2>Payment details</h2>
+
+          <div class="tabs">
+            <button type="button" class="tab active" data-target="cardForm">Credit/debit card</button>
+            <button type="button" class="tab" data-target="paypalForm">PayPal</button>
+          </div>
+
+          <!-- Card form -->
+          <form id="cardForm" class="payment-form">
+            <input type="text" placeholder="Card number" />
+            <div class="card-row">
+              <input type="text" placeholder="MM/YY" />
+              <input type="text" placeholder="CVV" />
+              <input type="text" placeholder="Postal code" />
+            </div>
+            <button type="submit" class="pay-button">Pay with card</button>
+          </form>
+
+          <!-- PayPal form -->
+          <div id="paypalForm" class="payment-form" style="display:none; text-align:center;">
+            <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-mark-color.svg" alt="PayPal Logo"
+              style="height:40px; margin-bottom:15px;">
+            <button type="button" class="paypal-button">Continue with PayPal</button>
+          </div>
+
+          <!-- Message area -->
+          <p id="paymentMessage" style="margin-top:15px; font-weight:bold;"></p>
+
+          <p class="renewal-text">
+            Your subscription will automatically renew every 12 months. You will be charged
+            <strong>$49.95 USD</strong> on each renewal until you cancel your subscription. If you cancel, previous
+            charges will not be refunded (unless required by law), but you may continue to use the
+            service until the end of the term you paid for.
+          </p>
+
+          <p class="terms">
+            By clicking the "Pay with card" button above, you agree to our
+            <a href="#">Terms of Service</a> and have read our
+            <a href="#">Privacy Policy</a>.
+          </p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script src="dashboard.js"></script>
+  <script src="documents.js"></script>
+  <script src="payment.js"></script>
 </body>
 
 </html>
