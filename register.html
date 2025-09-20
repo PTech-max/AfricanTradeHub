@@ -34,7 +34,6 @@
     }
 
     input[type="text"],
-    input[type="file"],
     input[type="url"],
     input[type="email"],
     input[type="password"],
@@ -70,12 +69,19 @@
     button:hover {
       background-color: #145a92;
     }
+
+    small {
+      display: block;
+      margin-top: 5px;
+      color: #555;
+      font-size: 12px;
+    }
   </style>
 </head>
 
 <body>
   <h2>Register Your Business</h2>
-  <form action="#" method="POST" enctype="multipart/form-data">
+  <form action="#" method="POST">
     <label>Business Name:</label>
     <input type="text" name="businessName" required />
 
@@ -84,11 +90,6 @@
 
     <label>Alternative Business Number:</label>
     <input type="text" name="alternativeBusinessNumber" />
-
-    <label>Business Logo:</label>
-    <input type="file" name="logo" accept="image/*" />
-    <!-- Hidden flag to indicate this is the business logo -->
-    <input type="hidden" name="isBusinessLogo" value="true" />
 
     <label>Registration Number:</label>
     <input type="text" name="regNumber" required />
@@ -169,13 +170,13 @@
 
     <label>Password:</label>
     <input type="password" name="password" required />
+    <small>Password must contain at least one uppercase letter, one lowercase letter, one '@' symbol, and one number.</small>
 
     <label>Member Information (Names, Roles):</label>
     <textarea name="memberInfo" rows="4" required></textarea>
 
     <button type="submit">Register</button>
   </form>
-
 </body>
 
 </html>

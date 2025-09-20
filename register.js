@@ -6,12 +6,11 @@ document.querySelector('form').addEventListener('submit', async function (e) {
     const form = e.target;
 
     // Step 1: Get and validate email
-    let email = form.email.value.trim();
+    const email = form.email.value.trim();
     if (!email) {
         alert("Email is required.");
         return;
     }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         alert("Please enter a valid email address.");
@@ -19,14 +18,15 @@ document.querySelector('form').addEventListener('submit', async function (e) {
     }
 
     // Step 2: Get and validate password
-    let password = form.password.value.trim();
+    const password = form.password.value.trim();
     if (!password) {
         alert("Password is required.");
         return;
     }
-
-    if (password.length < 4) {
-        alert("Password must be at least 4 characters.");
+    // Password must have uppercase, lowercase, @, and number
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[@])(?=.*\d).+$/;
+    if (!passwordRegex.test(password)) {
+        alert("Password must contain at least one uppercase letter, one lowercase letter, one '@' symbol, and one number.");
         return;
     }
 
@@ -64,46 +64,7 @@ document.querySelector('form').addEventListener('submit', async function (e) {
     }
 
     try {
-        // Step 5: Upload logo
-        let logoId = null;
-        if (form.logo?.files.length > 0) {
-            const logoFile = form.logo.files[0];
-            const logoForm = new FormData();
-            logoForm.append('file', logoFile);
-            logoForm.append('email', email);
-            logoForm.append('isBusinessLogo', 'true');
-
-            const logoRes = await fetch(`${BASE_URL}/upload`, {
-                method: 'POST',
-                body: logoForm
-            });
-
-            if (!logoRes.ok) throw new Error('Logo upload failed');
-            const logoData = await logoRes.json();
-            logoId = logoData.id;
-        }
-
-        // Step 6: Upload documents
-        let documentIds = [];
-        if (form.documents?.files.length > 0) {
-            for (const docFile of form.documents.files) {
-                const docForm = new FormData();
-                docForm.append('file', docFile);
-                docForm.append('email', email);
-                docForm.append('isBusinessLogo', 'false');
-
-                const docRes = await fetch(`${BASE_URL}/upload`, {
-                    method: 'POST',
-                    body: docForm
-                });
-
-                if (!docRes.ok) throw new Error(`Failed to upload document: ${docFile.name}`);
-                const docData = await docRes.json();
-                documentIds.push(docData.id);
-            }
-        }
-
-        // Step 7: Submit registration
+        // Step 5: Prepare registration data
         const userData = {
             businessName: form.businessName.value.trim(),
             businessNumber: form.businessNumber.value.trim(),
@@ -114,11 +75,10 @@ document.querySelector('form').addEventListener('submit', async function (e) {
             memberInfo: form.memberInfo.value.trim(),
             email: email,
             password: password,
-            logoAttachmentId: logoId,
-            documentAttachmentIds: documentIds,
-            businessUrl: businessUrl,
+            businessUrl: businessUrl
         };
 
+        // Step 6: Submit registration
         const userRes = await fetch(`${BASE_URL}/addUser`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -131,7 +91,6 @@ document.querySelector('form').addEventListener('submit', async function (e) {
         }
 
         alert("The registration was successful and the confirmation has been sent to the entered email.");
-
         localStorage.setItem("userEmail", email);
 
         form.reset();
