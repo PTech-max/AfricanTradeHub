@@ -7,11 +7,30 @@
   <title>AfricanTradeHub Dashboard</title>
   <link rel="stylesheet" href="dashboard.css" />
 </head>
+  <script>
+  function showPaymentNotification() {
+    const note = document.getElementById("paymentNotification");
+    note.style.display = "block";
+
+    // Hide after 10 seconds
+    setTimeout(() => {
+      note.style.display = "none";
+    }, 10000);
+  }
+
+  // Example: Trigger after 5 seconds (simulate due payment)
+  setTimeout(showPaymentNotification, 5000);
+</script>
+
 
 <body>
   <nav class="sidebar">
     <div class="sidebar-top-wrapper">
       <div class="sidebar-top">
+        <div id="paymentNotification" class="notification">
+  ⏰ Your subscription is about to expire. Please renew to stay visible in the marketplace!
+</div>
+
         <a href="#" class="logo_wrapper">
           <img src="" alt="Logo" class="logo-small" id="companyLogo" />
           <span class="company-name" id="companyName">Loading...</span>
