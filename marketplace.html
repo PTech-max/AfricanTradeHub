@@ -2,82 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Marketplace - AfricanTradeHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AfricanTradeHub Marketplace</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f0f4f8;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      background: #f5f5f5;
     }
-
     header {
-      background-color: #0a3d62;
+      background: #004080;
       color: white;
-      padding: 20px;
+      padding: 15px;
       text-align: center;
     }
-
-    .filters {
-      background-color: #fff;
-      padding: 15px 20px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .filters select {
+    .filter-bar {
+      background: #fff;
       padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
     }
-
-    .grid {
+    .filter-bar select, .filter-bar button {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .marketplace-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 20px;
       padding: 20px;
     }
-
-    .card {
+    .business-card {
       background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.2s;
     }
-
-    .card h3 {
-      margin-top: 0;
+    .business-card:hover {
+      transform: scale(1.03);
     }
-
-    .card button {
-      margin-top: 10px;
-      background-color: #0a3d62;
+    .biz-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+    .pay-btn {
+      background: #004080;
       color: white;
+      padding: 8px 15px;
       border: none;
-      padding: 10px 15px;
-      border-radius: 8px;
+      border-radius: 5px;
       cursor: pointer;
     }
-
-    .card button:hover {
-      background-color: #145a92;
+    .pay-btn:hover {
+      background: #0066cc;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Trade Marketplace</h1>
-    <p>Find African businesses to partner with</p>
+    <h1>AfricanTradeHub Marketplace</h1>
   </header>
 
-  <div class="filters">
-    <div>
-      <label>Filter by Country:</label>
-      <select>
-        
+  <!-- Country Filter -->
+  <div class="filter-bar">
+    <label for="countrySelect">Filter by Country:</label>
+    <select id="countrySelect">
+      <option value="all">All Countries</option>
+      <option value="Algeria">Algeria</option>
       <option value="Angola">Angola</option>
       <option value="Benin">Benin</option>
       <option value="Botswana">Botswana</option>
@@ -88,9 +88,8 @@
       <option value="Central African Republic">Central African Republic</option>
       <option value="Chad">Chad</option>
       <option value="Comoros">Comoros</option>
-      <option value="Congo">Congo</option>
-      <option value="Côte d'Ivoire">Côte d'Ivoire</option>
-      <option value="Democratic Republic of the Congo">Democratic Republic of the Congo</option>
+      <option value="Congo (Brazzaville)">Congo (Brazzaville)</option>
+      <option value="Congo (Kinshasa)">Congo (Kinshasa)</option>
       <option value="Djibouti">Djibouti</option>
       <option value="Egypt">Egypt</option>
       <option value="Equatorial Guinea">Equatorial Guinea</option>
@@ -102,6 +101,7 @@
       <option value="Ghana">Ghana</option>
       <option value="Guinea">Guinea</option>
       <option value="Guinea-Bissau">Guinea-Bissau</option>
+      <option value="Ivory Coast">Ivory Coast</option>
       <option value="Kenya">Kenya</option>
       <option value="Lesotho">Lesotho</option>
       <option value="Liberia">Liberia</option>
@@ -131,59 +131,77 @@
       <option value="Uganda">Uganda</option>
       <option value="Zambia">Zambia</option>
       <option value="Zimbabwe">Zimbabwe</option>
-      </select>
-    </div>
-    <div>
-      <label>Filter by Business Type:</label>
-      <select>
-        <option value="">All Types</option>
-        <option value="Manufacturer">Manufacturer</option>
-        <option value="Wholesaler">Wholesaler</option>
-        <option value="Retailer">Retailer</option>
-        <option value="Exporter">Exporter</option>
-      </select>
+    </select>
+    <button onclick="filterByCountry()">Filter</button>
+  </div>
 
-      <div class="grid" id="businessGrid"></div>
+  <!-- Marketplace Grid -->
+  <main>
+    <p style="text-align:center;">Only verified and paid businesses are listed below 👇</p>
+    <div id="marketplace" class="marketplace-grid"></div>
+  </main>
 
+  <!-- JS -->
   <script>
-async function loadCompanies() {
-  const sel = document.getElementById("countrySelect");
-  const country = sel ? sel.value : "all";
-  const url = country && country !== "all"
-    ? `/api/companies?country=${encodeURIComponent(country)}`
-    : `/api/companies`;
+    let allBusinesses = [];
 
-  const grid = document.getElementById("businessGrid");
-  grid.innerHTML = "Loading...";
+    async function loadMarketplace() {
+      try {
+        const resp = await fetch("http://localhost:5000/api/marketplace");
+        if (!resp.ok) throw new Error("Network error");
 
-  const resp = await fetch(url);
-  const json = await resp.json();
+        const businesses = await resp.json();
+        allBusinesses = businesses;
+        renderBusinesses(allBusinesses);
+      } catch (err) {
+        console.error("Failed to load marketplace", err);
+        document.getElementById("marketplace").innerHTML = "<p>Error loading businesses. Please try again later.</p>";
+      }
+    }
 
-  grid.innerHTML = "";
-  if (!json.ok || !json.data.length) {
-    grid.innerHTML = "<p>No businesses yet.</p>";
-    return;
-  }
+    function renderBusinesses(businesses) {
+      const container = document.getElementById("marketplace");
+      container.innerHTML = "";
 
-  json.data.forEach(c => {
-    const card = document.createElement("div");
-    card.className = "business-card";
-    card.innerHTML = `
-      <img src="${c.logo_path || ''}" alt="Logo" onerror="this.style.display='none'">
-      <h3>${c.business_name}</h3>
-      <p><strong>Country:</strong> ${c.country}</p>
-      <p><strong>Type:</strong> ${c.business_type}</p>
-      <a href="mailto:${c.email}"><button>Contact</button></a>
-    `;
-    grid.appendChild(card);
-  });
-}
+      if (businesses.length === 0) {
+        container.innerHTML = "<p>No verified businesses yet.</p>";
+        return;
+      }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const sel = document.getElementById("countrySelect");
-  if (sel) sel.addEventListener("change", loadCompanies);
-  loadCompanies();
-});
-</script>
+      businesses.forEach(biz => {
+        // Show only if payment is verified
+        if (biz.paymentStatus !== "paid") return;
+
+        const card = `
+          <div class="business-card">
+            <img src="${biz.logo}" alt="Logo" class="biz-logo">
+            <h3>${biz.name}</h3>
+            <p><strong>Type:</strong> ${biz.type}</p>
+            <p><strong>Country:</strong> ${biz.country}</p>
+            <p><strong>Reg. No:</strong> ${biz.registrationNumber}</p>
+            <button class="pay-btn" onclick="viewDetails('${biz.id}')">View Details</button>
+          </div>
+        `;
+        container.innerHTML += card;
+      });
+    }
+
+    function filterByCountry() {
+      const selected = document.getElementById("countrySelect").value;
+      if (selected === "all") {
+        renderBusinesses(allBusinesses);
+      } else {
+        const filtered = allBusinesses.filter(b => b.country === selected && b.paymentStatus === "paid");
+        renderBusinesses(filtered);
+      }
+    }
+
+    function viewDetails(bizId) {
+      alert("Redirecting to details for business ID: " + bizId);
+      // later you can make it redirect to /business/:id page
+    }
+
+    loadMarketplace();
+  </script>
 </body>
 </html>
