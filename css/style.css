@@ -111,3 +111,18 @@ form input, form select {
 .pay-btn:hover {
   background: #0066cc;
 }
+/* Payment Reminder Notification */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #ffcc00;
+  color: #333;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  font-weight: bold;
+  display: none;
+  z-index: 1000;
+}
+
