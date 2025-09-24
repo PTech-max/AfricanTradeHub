@@ -99,6 +99,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Map amount to subscription type string used by backend
+  function getSubscriptionTypeByAmount(amount) {
+    switch (amount) {
+      case 9.95:
+        return "monthly";
+      case 19.95:
+        return "quarterly";
+      case 49.95:
+        return "annual";
+      default:
+        return null;
+    }
+  }
+
   // PayPal payment button click handler
   const paypalBtn = paypalForm?.querySelector("button");
   paypalBtn?.addEventListener("click", async () => {
@@ -113,14 +127,36 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Get userEmail from localStorage
+    const userEmail = localStorage.getItem("userEmail");
+    if (!userEmail) {
+      paymentMessage.style.color = "red";
+      paymentMessage.textContent = "User email not found. Please login first.";
+      return;
+    }
+
+    // Get subscription type string for backend
+    const subscriptionType = getSubscriptionTypeByAmount(amount);
+    if (!subscriptionType) {
+      paymentMessage.style.color = "red";
+      paymentMessage.textContent = "Invalid subscription type.";
+      return;
+    }
+
     paypalBtn.disabled = true;
     paymentMessage.style.color = "green";
     paymentMessage.textContent = "Redirecting to PayPal...";
 
     try {
-      // POST request to create payment and get approval URL
+      // Build URL with required params
+      const params = new URLSearchParams({
+        amount: amount.toString(),
+        subscriptionType,
+        userEmail,
+      });
+
       const response = await fetch(
-        `http://localhost:8080/api/paypal/create-payment?amount=${encodeURIComponent(amount)}`,
+        `http://localhost:8080/api/paypal/create-payment?${params.toString()}`,
         { method: "POST" }
       );
 

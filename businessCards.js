@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", async function () {
+  const BASE_URL = "http://localhost:8080"; // Adjust your API base URL here
+
   // 1. Check payment status from URL
   const urlParams = new URLSearchParams(window.location.search);
   const paymentStatus = urlParams.get("payment");
@@ -6,66 +8,79 @@ document.addEventListener("DOMContentLoaded", async function () {
   // 2. Save payment status in localStorage for persistence
   if (paymentStatus === "approved") {
     localStorage.setItem("paymentConfirmed", "true");
-
-    // Optional: Remove query param from URL without reloading the page
+    // Remove query param without reload
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  // 3. Check payment confirmed flag from localStorage (after setting)
-  const isPaymentConfirmed = localStorage.getItem("paymentConfirmed") === "true";
+  // Utility to fetch user data by email
+  async function fetchUserData(email) {
+    try {
+      const res = await fetch(`${BASE_URL}/api/user/business-info?email=${encodeURIComponent(email)}`);
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Server responded with ${res.status}: ${errText}`);
+      }
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert(`Unable to load business information:\n${error.message}`);
+      return null;
+    }
+  }
 
-  // --- Load user email and business info ---
+  // New: Check subscription status from backend
+  async function checkSubscriptionStatus(email) {
+    try {
+      const res = await fetch(`${BASE_URL}/api/paypal/subscription-status?email=${encodeURIComponent(email)}`);
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Subscription check failed with status ${res.status}: ${errText}`);
+      }
+      const data = await res.json();
+      // data: {active: boolean, message: string, subscriptionType: string, paymentDate: string}
+      return data;
+    } catch (error) {
+      console.error("Error checking subscription status:", error);
+      alert(`Unable to verify subscription status:\n${error.message}`);
+      return { active: false, message: "Subscription check failed" };
+    }
+  }
+
+  // Load or ask for user email
   let email = localStorage.getItem("userEmail");
-
   if (!email) {
     email = prompt("Enter your registered email:");
-    if (email) {
-      localStorage.setItem("userEmail", email);
-    } else {
+    if (email) localStorage.setItem("userEmail", email);
+    else {
       alert("Email is required to load your business info.");
       return;
     }
   }
 
-  console.log("User email from localStorage:", email);
+  // Load user data
+  let userData = await fetchUserData(email);
+  if (!userData) return;
 
-  let userData = null;
-  const BASE_URL = "http://localhost:8080"; // Adjust your API base URL here
-
-  try {
-    const response = await fetch(`${BASE_URL}/api/user/business-info?email=${encodeURIComponent(email)}`);
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Server responded with ${response.status}: ${errText}`);
-    }
-
-    userData = await response.json();
-
-    if (!userData.businessUrl || userData.businessUrl.trim() === "") {
-      alert("Business URL is required to view your profile.");
-      return;
-    }
-
-    document.querySelector(".logo-small")?.setAttribute("src", userData.logoUrl || "default-logo.png");
-    const companyNameEl = document.querySelector(".company-name");
-    if (companyNameEl) companyNameEl.textContent = userData.businessName || "No Business Name";
-
-  } catch (error) {
-    console.error("Error loading business info:", error);
-    alert(`Unable to load business information:\n${error.message}`);
-    return;
+  // If payment just confirmed, reload user data to get fresh subscription info
+  if (localStorage.getItem("paymentConfirmed") === "true") {
+    userData = await fetchUserData(email);
+    if (!userData) return;
+    localStorage.removeItem("paymentConfirmed"); // Clear flag after refresh
   }
+
+  // Set logo and company name
+  document.querySelector(".logo-small")?.setAttribute("src", userData.logoUrl || "default-logo.png");
+  const companyNameEl = document.querySelector(".company-name");
+  if (companyNameEl) companyNameEl.textContent = userData.businessName || "No Business Name";
 
   // --- Utility function to clear displayed content ---
   function clearDisplayedInfo() {
-    const profileInfo = document.getElementById("profileInfo");
-    if (profileInfo) profileInfo.style.display = "none";
-
-    const uploadSection = document.getElementById("uploadDocumentsSection");
-    if (uploadSection) uploadSection.style.display = "none";
-
-    const viewSection = document.getElementById("viewDocumentsSection");
-    if (viewSection) viewSection.style.display = "none";
+    const idsToHide = ["profileInfo", "uploadDocumentsSection", "viewDocumentsSection"];
+    idsToHide.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    });
 
     const main = document.querySelector("main.content-area");
     if (!main) return;
@@ -76,12 +91,53 @@ document.addEventListener("DOMContentLoaded", async function () {
     const marketplaceContainer = main.querySelector(".marketplace-container");
     if (marketplaceContainer) marketplaceContainer.remove();
 
-    // Remove search bar if exists
     const existingSearch = main.querySelector(".marketplace-search");
     if (existingSearch) existingSearch.remove();
+
+    const expiryMsg = main.querySelector(".subscription-expiry-message");
+    if (expiryMsg) expiryMsg.remove();
   }
 
-  // --- Event Listeners ---
+  // --- Subscription check function with logging (still keep for fallback, not used now) ---
+  function isSubscriptionActive(subscriptionType, paymentDateStr) {
+    if (!subscriptionType || !paymentDateStr) {
+      console.log("Subscription or payment date missing");
+      return false;
+    }
+
+    const paymentDate = new Date(paymentDateStr);
+    if (isNaN(paymentDate)) {
+      console.log("Invalid payment date:", paymentDateStr);
+      return false;
+    }
+
+    const now = new Date();
+    let expiryDate = new Date(paymentDate);
+
+    switch (subscriptionType.toLowerCase()) {
+      case "one_month":
+      case "one month":
+        expiryDate.setMonth(expiryDate.getMonth() + 1);
+        break;
+      case "quarterly":
+        expiryDate.setMonth(expiryDate.getMonth() + 3);
+        break;
+      case "annually":
+      case "annual":
+      case "yearly":
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        break;
+      default:
+        console.log("Unknown subscription type:", subscriptionType);
+        return false;
+    }
+
+    console.log(`Now: ${now.toISOString()}, Expiry: ${expiryDate.toISOString()}`);
+
+    return now < expiryDate;
+  }
+
+  // --- Event listeners and UI logic ---
 
   // Profile Button
   document.getElementById("myProfileBtn")?.addEventListener("click", () => {
@@ -111,19 +167,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (welcomeH2) welcomeH2.style.display = "none";
   });
 
-  // Marketplace Button - check payment before displaying marketplace
-  document.getElementById("marketplaceBtn")?.addEventListener("click", () => {
-    if (!isPaymentConfirmed) {
-      alert("⚠️ Please complete your payment to access the marketplace.");
-      return;
-    }
-    displayMarketplaceCards();
-  });
-
   // Upload Documents Button
   const uploadBtn = document.getElementById("uploadDocsBtn");
   const uploadSection = document.getElementById("uploadDocumentsSection");
-
   uploadBtn?.addEventListener("click", () => {
     clearDisplayedInfo();
     uploadSection.style.display = "block";
@@ -191,164 +237,167 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
-  // --- Marketplace cards and functions ---
-
-  async function displayMarketplaceCards() {
-    clearDisplayedInfo();
-
-    const main = document.querySelector("main.content-area");
-    if (!main) return;
-
-    // Remove previous container if it exists
-    const existingContainer = document.querySelector(".marketplace-container");
-    if (existingContainer) existingContainer.remove();
-
-    // Remove existing search bar if it exists
-    const existingSearch = document.querySelector(".marketplace-search");
-    if (existingSearch) existingSearch.remove();
-
-    // Create search bar
-    const searchWrapper = document.createElement("div");
-    searchWrapper.className = "marketplace-search";
-    searchWrapper.style.display = "flex";
-    searchWrapper.style.gap = "10px";
-    searchWrapper.style.margin = "20px";
-    searchWrapper.style.alignItems = "center";
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.id = "searchInput";
-    input.placeholder = "Search by type or country...";
-    input.style.padding = "8px";
-    input.style.fontSize = "16px";
-    input.style.flex = "1";
-
-    const button = document.createElement("button");
-    button.textContent = "Search";
-    button.style.padding = "8px 12px";
-    button.style.fontSize = "16px";
-
-    button.onclick = () => displayMarketplaceCards(); // recall with filter
-
-    input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        displayMarketplaceCards();
-      }
-    });
-
-    searchWrapper.appendChild(input);
-    searchWrapper.appendChild(button);
-    main.appendChild(searchWrapper);
-
-    // Get search term
-    const searchTerm = input.value.trim().toLowerCase();
-
-    // Create container for cards
-    const container = document.createElement("div");
-    container.className = "marketplace-container";
-    container.style.display = "flex";
-    container.style.flexDirection = "column";
-    container.style.gap = "30px";
-    container.style.padding = "20px";
-    main.appendChild(container);
-
-    try {
-      const response = await fetch(`${BASE_URL}/api/marketplace`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch marketplace data: ${response.status}`);
-      }
-
-      const businesses = await response.json();
-
-      // Filter if search term exists
-      const filteredBusinesses = businesses.filter(business => {
-        const typeMatch = business.businessType?.toLowerCase().includes(searchTerm);
-        const countryMatch = business.country?.toLowerCase().includes(searchTerm);
-        return typeMatch || countryMatch;
-      });
-
-      if (!filteredBusinesses.length) {
-        container.innerHTML = `<p>No businesses found for "${searchTerm}".</p>`;
-        return;
-      }
-
-      // First 5 cards
-      const firstFive = filteredBusinesses.slice(0, 5);
-      const remaining = filteredBusinesses.slice(5);
-
-      const topRow = document.createElement("div");
-      topRow.style.display = "flex";
-      topRow.style.flexWrap = "wrap";
-      topRow.style.justifyContent = "space-between";
-      topRow.style.gap = "20px";
-
-      firstFive.forEach(business => {
-        const card = createBusinessCard(business);
-        card.style.flex = "1 1 calc(20% - 20px)";
-        card.style.minWidth = "200px";
-        topRow.appendChild(card);
-      });
-
-      container.appendChild(topRow);
-
-      if (remaining.length) {
-        const verticalWrapper = document.createElement("div");
-        verticalWrapper.style.display = "flex";
-        verticalWrapper.style.flexDirection = "column";
-        verticalWrapper.style.gap = "20px";
-
-        remaining.forEach(business => {
-          const card = createBusinessCard(business);
-          verticalWrapper.appendChild(card);
-        });
-
-        container.appendChild(verticalWrapper);
-      }
-
-    } catch (error) {
-      container.innerHTML = `<p style="color: red;">Error loading businesses: ${error.message}</p>`;
-      console.error(error);
-    }
-  }
-
-  function createBusinessCard(business) {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.style.background = "white";
-    card.style.padding = "20px";
-    card.style.borderRadius = "12px";
-    card.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
-    card.style.marginBottom = "10px";
-    card.style.transition = "transform 0.2s ease";
-    card.style.cursor = "pointer";
-
-    card.addEventListener("mouseover", () => card.style.transform = "scale(1.02)");
-    card.addEventListener("mouseout", () => card.style.transform = "scale(1)");
-
-    card.innerHTML = `
-      <img src="${business.logoUrl || 'default-logo.png'}" alt="${business.businessName} Logo"
-        style="width: 100%; max-height: 150px; object-fit: contain; border-radius: 8px; margin-bottom: 10px;" />
-      <h3>${business.businessName}</h3>
-      <p><strong>Business Number:</strong> ${business.businessNumber || "N/A"}</p>
-      <p><strong>Type:</strong> ${business.businessType || "N/A"}</p>
-      <p><strong>Country:</strong> ${business.country || "N/A"}</p>
-      ${business.businessUrl ? `<p><strong>Website:</strong> <a href="${business.businessUrl}" target="_blank" rel="noopener noreferrer">${business.businessUrl}</a></p>` : ''}
-      <button style="margin-top: 10px; background-color: #0a3d62; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;">Contact Business</button>
-    `;
-
-    return card;
-  }
-
   // Other sidebar buttons clear content
-  const otherButtons = document.querySelectorAll(".sidebar-links button:not(#myProfileBtn):not(#marketplaceBtn):not(#uploadDocsBtn):not(#viewDocsBtn)");
+  const otherButtons = document.querySelectorAll(".sidebar-links button:not(#myProfileBtn):not(#uploadDocsBtn):not(#viewDocsBtn):not(#marketplaceBtn)");
   otherButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       clearDisplayedInfo();
     });
   });
 
-  // Automatically show marketplace if payment confirmed and URL param present
-  if (isPaymentConfirmed && paymentStatus === "approved") {
+  // Marketplace Button with subscription check (using backend)
+  document.getElementById("marketplaceBtn")?.addEventListener("click", async () => {
+    if (!userData) {
+      alert("Business information is not loaded yet.");
+      return;
+    }
+
+    // Check subscription status from backend
+    const subscriptionStatus = await checkSubscriptionStatus(email);
+
+    console.log("Subscription status from backend:", subscriptionStatus);
+
+    if (!subscriptionStatus.active) {
+      clearDisplayedInfo();
+
+      const main = document.querySelector("main.content-area");
+      if (main) {
+        const msg = document.createElement("p");
+        msg.className = "subscription-expiry-message";
+        msg.style.color = "red";
+        msg.style.fontWeight = "bold";
+        msg.style.margin = "20px";
+        msg.textContent = subscriptionStatus.message || "⚠️ Your subscription has expired. Please renew your subscription to access the marketplace.";
+        main.appendChild(msg);
+      }
+
+      alert(subscriptionStatus.message || "⚠️ Your subscription has expired. Please renew your subscription to access the marketplace.");
+      return;
+    }
+
+    // Subscription active, display marketplace
     displayMarketplaceCards();
+  });
+
+  // --- Marketplace rendering function ---
+  async function displayMarketplaceCards() {
+    clearDisplayedInfo();
+
+    const main = document.querySelector("main.content-area");
+    if (!main) return;
+
+    const container = document.createElement("div");
+    container.className = "marketplace-container";
+
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.placeholder = "Search businesses...";
+    searchInput.className = "marketplace-search";
+    searchInput.style.marginBottom = "15px";
+    searchInput.style.padding = "8px";
+    searchInput.style.width = "100%";
+    container.appendChild(searchInput);
+
+    const cardsDiv = document.createElement("div");
+    cardsDiv.className = "marketplace-cards";
+    container.appendChild(cardsDiv);
+
+    main.appendChild(container);
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/marketplace`);
+      if (!res.ok) throw new Error(`Marketplace fetch failed with status ${res.status}`);
+      const businesses = await res.json();
+
+      function renderCards(filtered) {
+        cardsDiv.innerHTML = "";
+        if (filtered.length === 0) {
+          cardsDiv.innerHTML = "<p>No businesses found.</p>";
+          return;
+        }
+        filtered.forEach(business => {
+          const card = new BusinessCard(business).createElement();
+          cardsDiv.appendChild(card);
+        });
+      }
+
+      renderCards(businesses);
+
+      searchInput.addEventListener("input", () => {
+        const term = searchInput.value.trim().toLowerCase();
+        if (term === "") {
+          renderCards(businesses);
+          return;
+        }
+        const filtered = businesses.filter(b =>
+          (b.businessName && b.businessName.toLowerCase().includes(term)) ||
+          (b.businessType && b.businessType.toLowerCase().includes(term)) ||
+          (b.country && b.country.toLowerCase().includes(term))
+        );
+        renderCards(filtered);
+      });
+
+    } catch (error) {
+      console.error("Error loading marketplace businesses:", error);
+      cardsDiv.innerHTML = `<p style="color:red;">Unable to load marketplace businesses: ${error.message}</p>`;
+    }
+
+    const welcomeH2 = document.querySelector(".welcome-message");
+    if (welcomeH2) welcomeH2.style.display = "none";
   }
+
+  // --- BusinessCard Class ---
+  class BusinessCard {
+    constructor(business) {
+      this.business = business;
+    }
+
+    createElement() {
+      const card = document.createElement("div");
+      card.className = "business-card";
+      card.style.border = "1px solid #ccc";
+      card.style.borderRadius = "6px";
+      card.style.padding = "12px";
+      card.style.margin = "8px";
+      card.style.width = "250px";
+      card.style.boxShadow = "2px 2px 8px rgba(0,0,0,0.1)";
+      card.style.backgroundColor = "#fff";
+
+      const logo = document.createElement("img");
+      logo.src = this.business.logoUrl || "default-logo.png";
+      logo.alt = this.business.businessName + " logo";
+      logo.style.width = "100%";
+      logo.style.height = "150px";
+      logo.style.objectFit = "contain";
+      logo.style.marginBottom = "10px";
+      card.appendChild(logo);
+
+      const name = document.createElement("h3");
+      name.textContent = this.business.businessName || "Unnamed Business";
+      name.style.margin = "0 0 6px 0";
+      card.appendChild(name);
+
+      const type = document.createElement("p");
+      type.textContent = `Type: ${this.business.businessType || "N/A"}`;
+      type.style.margin = "0 0 4px 0";
+      card.appendChild(type);
+
+      const country = document.createElement("p");
+      country.textContent = `Country: ${this.business.country || "N/A"}`;
+      country.style.margin = "0 0 4px 0";
+      card.appendChild(country);
+
+      const websiteLink = document.createElement("a");
+      websiteLink.href = this.business.businessUrl || "#";
+      websiteLink.textContent = this.business.businessUrl ? "Visit Website" : "";
+      websiteLink.target = "_blank";
+      websiteLink.rel = "noopener noreferrer";
+      websiteLink.style.color = "#007BFF";
+      websiteLink.style.textDecoration = "none";
+      card.appendChild(websiteLink);
+
+      return card;
+    }
+  }
+
 });
