@@ -252,29 +252,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    // Check subscription status from backend
-    const subscriptionStatus = await checkSubscriptionStatus(email);
-
-    console.log("Subscription status from backend:", subscriptionStatus);
-
-    if (!subscriptionStatus.active) {
-      clearDisplayedInfo();
-
-      const main = document.querySelector("main.content-area");
-      if (main) {
-        const msg = document.createElement("p");
-        msg.className = "subscription-expiry-message";
-        msg.style.color = "red";
-        msg.style.fontWeight = "bold";
-        msg.style.margin = "20px";
-        msg.textContent = subscriptionStatus.message || "⚠️ Your subscription has expired. Please renew your subscription to access the marketplace.";
-        main.appendChild(msg);
-      }
-
-      alert(subscriptionStatus.message || "⚠️ Your subscription has expired. Please renew your subscription to access the marketplace.");
-      return;
-    }
-
     // Subscription active, display marketplace
     displayMarketplaceCards();
   });

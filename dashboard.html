@@ -7,35 +7,18 @@
   <title>AfricanTradeHub Dashboard</title>
   <link rel="stylesheet" href="dashboard.css" />
 </head>
-  <script>
-  function showPaymentNotification() {
-    const note = document.getElementById("paymentNotification");
-    note.style.display = "block";
-
-    // Hide after 10 seconds
-    setTimeout(() => {
-      note.style.display = "none";
-    }, 10000);
-  }
-
-  // Example: Trigger after 5 seconds (simulate due payment)
-  setTimeout(showPaymentNotification, 5000);
-</script>
-
 
 <body>
-  <nav class="sidebar">
+  <nav class="sidebar" aria-label="Main sidebar navigation">
     <div class="sidebar-top-wrapper">
       <div class="sidebar-top">
-        <div id="paymentNotification" class="notification">
-  ⏰ Your subscription is about to expire. Please renew to stay visible in the marketplace!
-</div>
-
-        <a href="#" class="logo_wrapper">
-          <img src="" alt="Logo" class="logo-small" id="companyLogo" />
-          <span class="company-name" id="companyName">Loading...</span>
-        </a>
+        <!-- You can add sidebar top content here -->
       </div>
+
+      <a href="#" class="logo_wrapper">
+        <img src="" alt="Logo" class="logo-small" id="companyLogo" />
+        <span class="company-name" id="companyName">Loading...</span>
+      </a>
     </div>
 
     <ul class="sidebar-links">
@@ -64,17 +47,24 @@
         </button>
       </li>
       <li>
-        <button type="button">
+        <button type="button" id="settingsBtn">
           <span class="icon">⚙️</span>
           <span class="link-text">Settings</span>
         </button>
+
       </li>
-      <li>
-        <button type="button">
+      <li style="position: relative;">
+        <button type="button" id="notificationsBtn" aria-haspopup="true" aria-expanded="false"
+          aria-controls="mainNotification">
           <span class="icon">🔔</span>
           <span class="link-text">Notifications</span>
+          <span id="notificationBadge"
+            style="display:none; background:red; color:white; font-size:12px; border-radius:50%; padding:2px 6px; margin-left:6px; vertical-align:super; user-select:none; cursor:default;">!</span>
         </button>
+
+        <!-- Removed old dropdown from here -->
       </li>
+
       <li>
         <button id="myProfileBtn" type="button">
           <span class="icon">👤</span>
@@ -92,6 +82,45 @@
 
   <main class="content-area" aria-live="polite">
     <h2 class="welcome-message">Welcome to AfricanTradeHub</h2>
+
+    <!-- Notification message container moved here -->
+    <div id="mainNotification" role="region" aria-live="polite"
+      style="display:none; border:1px solid #ccc; padding:10px; margin: 20px 0; border-radius: 4px; background:#fff; max-width: 280px; font-weight:bold; color:#333;">
+      <!-- Notification message will appear here -->
+    </div>
+    <!-- ✅ Settings Section -->
+    <section id="settingsSection" style="display: none; margin-top: 30px;">
+      <h2>Account Settings</h2>
+
+      <!-- Change Password -->
+      <form id="changePasswordForm">
+        <h3>Change Password</h3>
+        <label for="currentPassword">Current Password:</label><br />
+        <input type="password" id="currentPassword" required /><br /><br />
+
+        <label for="newPassword">New Password:</label><br />
+        <input type="password" id="newPassword" required /><br /><br />
+
+        <label for="confirmNewPassword">Confirm New Password:</label><br />
+        <input type="password" id="confirmNewPassword" required /><br /><br />
+
+        <button type="submit">Change Password</button>
+        <p id="passwordChangeMessage" style="color: green; font-weight: bold; margin-top: 10px;"></p>
+      </form>
+
+      <hr style="margin: 30px 0;" />
+
+      <!-- Delete Account -->
+      <div>
+        <h3>Danger Zone</h3>
+        <p>Once deleted, your account cannot be recovered.</p>
+        <button id="deleteAccountBtn"
+          style="background: red; color: white; padding: 10px 20px; border: none; border-radius: 4px;">
+          Delete My Account
+        </button>
+        <p id="deleteAccountMessage" style="color: red; font-weight: bold; margin-top: 10px;"></p>
+      </div>
+    </section>
 
     <!-- Profile Section -->
     <section id="profileInfo" class="profile-card" style="display:none;">
@@ -142,94 +171,88 @@
     </section>
 
     <section id="paymentMethodsSection" style="display:none; margin-top:30px;">
-  <div class="payment-container">
-    <!-- Left side: Billing cycle -->
-    <div class="billing-section">
-      <h2>Choose a billing cycle</h2>
+      <div class="payment-container">
+        <!-- Left side: Billing cycle -->
+        <div class="billing-section">
+          <h2>Choose a billing cycle</h2>
 
-      <form id="paymentForm" novalidate>
-        <label class="billing-option active">
-          <input type="radio" name="billingCycle" value="49.95" checked />
-          <div class="billing-info">
-            <div class="billing-title">Pay annually</div>
-            <div class="billing-sub">$4.17 USD / month</div>
-            <span class="badge best">Save 58%</span>
-          </div>
-        </label>
+          <form id="paymentForm" novalidate>
+            <label class="billing-option active">
+              <input type="radio" name="billingCycle" value="49.95" checked />
+              <div class="billing-info">
+                <div class="billing-title">Pay annually</div>
+                <div class="billing-sub">$4.17 USD / month</div>
+                <span class="badge best">Save 58%</span>
+              </div>
+            </label>
 
-        <label class="billing-option">
-          <input type="radio" name="billingCycle" value="19.95" />
-          <div class="billing-info">
-            <div class="billing-title">Pay quarterly</div>
-            <div class="billing-sub">$6.65 USD / month</div>
-            <span class="badge">Save 33%</span>
-          </div>
-        </label>
+            <label class="billing-option">
+              <input type="radio" name="billingCycle" value="19.95" />
+              <div class="billing-info">
+                <div class="billing-title">Pay quarterly</div>
+                <div class="billing-sub">$6.65 USD / month</div>
+                <span class="badge">Save 33%</span>
+              </div>
+            </label>
 
-        <label class="billing-option">
-          <input type="radio" name="billingCycle" value="9.95" />
-          <div class="billing-info">
-            <div class="billing-title">Pay monthly</div>
-            <div class="billing-sub">$9.95 USD / month</div>
-          </div>
-        </label>
+            <label class="billing-option">
+              <input type="radio" name="billingCycle" value="9.95" />
+              <div class="billing-info">
+                <div class="billing-title">Pay monthly</div>
+                <div class="billing-sub">$9.95 USD / month</div>
+              </div>
+            </label>
 
-        <div class="total">
-          <strong>Total</strong>
-          <span id="paymentTotal">$49.95 USD / year</span>
+            <div class="total">
+              <strong>Total</strong>
+              <span id="paymentTotal">$49.95 USD / year</span>
+            </div>
+
+            <div class="discount">
+              <a href="#" id="discountToggle">Use discount code</a>
+              <input type="text" id="discountInput" placeholder="Enter code" style="display:none;" autocomplete="off" />
+            </div>
+
+            <ul class="guarantee">
+              <li>✔ 100% money-back guarantee</li>
+              <li>✔ Pause or cancel anytime</li>
+            </ul>
+          </form>
         </div>
 
-        <div class="discount">
-          <a href="#" id="discountToggle">Use discount code</a>
-          <input type="text" id="discountInput" placeholder="Enter code" style="display:none;" autocomplete="off" />
+        <!-- Right side: Payment details -->
+        <div class="details-section">
+          <h2>Payment details</h2>
+
+          <!-- Removed tabs and card form -->
+
+          <!-- PayPal form only -->
+          <div id="paypalForm" class="payment-form" style="text-align:center;">
+            <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-mark-color.svg" alt="PayPal Logo"
+              style="height:40px; margin-bottom:15px;">
+            <button type="button" class="paypal-button">Continue with PayPal</button>
+          </div>
+
+          <!-- Message area -->
+          <p id="paymentMessage" style="margin-top:15px; font-weight:bold;"></p>
+
+          <p class="renewal-text">
+            Your subscription will automatically renew every 12 months. You will be charged
+            <strong>$49.95 USD</strong> on each renewal until you cancel your subscription. If you cancel, previous
+            charges will not be refunded (unless required by law), but you may continue to use the
+            service until the end of the term you paid for.
+          </p>
+
+          <p class="terms">
+            By clicking the "Continue with PayPal" button above, you agree to our
+            <a href="#">Terms of Service</a> and have read our
+            <a href="#">Privacy Policy</a>.
+          </p>
         </div>
-
-        <ul class="guarantee">
-          <li>✔ 100% money-back guarantee</li>
-          <li>Ⅱ Pause or cancel anytime</li>
-        </ul>
-      </form>
-    </div>
-
-    <!-- Right side: Payment details -->
-    <div class="details-section">
-      <h2>Payment details</h2>
-
-      <!-- Removed tabs and card form -->
-
-      <!-- PayPal form only -->
-      <div id="paypalForm" class="payment-form" style="text-align:center;">
-        <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-mark-color.svg" alt="PayPal Logo"
-          style="height:40px; margin-bottom:15px;">
-        <button type="button" class="paypal-button">Continue with PayPal</button>
       </div>
-
-      <!-- Message area -->
-      <p id="paymentMessage" style="margin-top:15px; font-weight:bold;"></p>
-
-      <p class="renewal-text">
-        Your subscription will automatically renew every 12 months. You will be charged
-        <strong>$49.95 USD</strong> on each renewal until you cancel your subscription. If you cancel, previous
-        charges will not be refunded (unless required by law), but you may continue to use the
-        service until the end of the term you paid for.
-      </p>
-
-      <p class="terms">
-        By clicking the "Continue with PayPal" button above, you agree to our
-        <a href="#">Terms of Service</a> and have read our
-        <a href="#">Privacy Policy</a>.
-      </p>
-    </div>
-  </div>
-</section>
+    </section>
 
   </main>
-
-  <script src="dashboard.js"></script>
-  <script src="documents.js"></script>
-  <script src="payment.js"></script>
-  <script src="businessCards.js"></script>
-  
 
   <style>
     /* Visually hidden class for accessibility */
@@ -239,9 +262,87 @@
       width: 1px;
       overflow: hidden;
       clip: rect(1px, 1px, 1px, 1px);
-      white-space: nowrap; /* prevent wrapping */
+      white-space: nowrap;
+    }
+
+    #notificationsBtn {
+      position: relative;
+      z-index: 1100;
+      /* Make sure button is above other elements */
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: #333;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #notificationBadge {
+      font-weight: bold;
+      user-select: none;
+      cursor: default;
+      background: red;
+      color: white;
+      font-size: 12px;
+      border-radius: 50%;
+      padding: 2px 6px;
+      margin-left: 6px;
+      vertical-align: super;
+      display: none;
+      /* Start hidden */
+    }
+
+    /* Removed #notificationDropdown styles */
+
+    /* Style for notification message container in main */
+    #mainNotification {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.3;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      width: 280px;
+      border-radius: 4px;
+      margin-top: 20px;
+      color: #333;
+      user-select: text;
+      background: white;
+      font-weight: bold;
+    }
+
+    section input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    section button {
+      padding: 10px 20px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    section button:hover {
+      background-color: #005fa3;
     }
   </style>
+
+  <script src="dashboard.js"></script>
+  <script src="documents.js"></script>
+  <script src="payment.js"></script>
+  <script src="businessCards.js"></script>
+  <script src="notification.js"></script>
+  <script src="settings.js"></script>
+
 </body>
 
 </html>
