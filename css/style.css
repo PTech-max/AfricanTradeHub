@@ -158,6 +158,11 @@ footer {
     font-size: 1rem;
   }
 }
+.logo img {
+  height: 100px;   /* adjust size */
+  width: auto;    /* keeps aspect ratio */
+}
+
 /* Business cards */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 20px; }
 .business-card { background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.08); padding:18px; text-align:center; }
